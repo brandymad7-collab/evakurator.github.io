@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Личный кабинет - Evakurator</title>
+    <title>Личный кабинет - Эвакуатор 24/7</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDK -->
@@ -125,11 +125,6 @@
             color: #333;
         }
         
-        .btn-small {
-            padding: 8px 15px;
-            font-size: 0.9rem;
-        }
-        
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -235,7 +230,7 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 10px;
         }
         
         .card-title i {
@@ -522,6 +517,14 @@
                 <label class="form-label">Пароль</label>
                 <input type="password" class="form-control" id="login-password" placeholder="Ваш пароль">
             </div>
+            
+            <!-- Ссылка восстановления пароля -->
+            <div style="text-align: right; margin-bottom: 15px;">
+                <a href="#" id="forgot-password" style="color: #1a2a6c; text-decoration: none; font-size: 0.9rem;">
+                    Забыли пароль?
+                </a>
+            </div>
+            
             <button class="btn btn-primary" id="do-login" style="width: 100%; margin-bottom: 15px;">Войти</button>
             <button class="btn btn-secondary" id="cancel-login" style="width: 100%;">Отмена</button>
         </div>
@@ -546,7 +549,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Пароль</label>
-                <input type="password" class="form-control" id="reg-password" placeholder="Придумайте пароль">
+                <input type="password" class="form-control" id="reg-password" placeholder="Придумайте пароль (минимум 6 символов)">
             </div>
             <button class="btn btn-primary" id="do-register" style="width: 100%; margin-bottom: 15px;">Зарегистрироваться</button>
             <button class="btn btn-secondary" id="cancel-register" style="width: 100%;">Отмена</button>
@@ -626,7 +629,7 @@
             setupModalClose('login-modal', 'close-login', 'cancel-login');
             setupModalClose('register-modal', 'close-register', 'cancel-register');
 
-            // Вход в систему
+            // Вход в систему - ИСПРАВЛЕННАЯ ВЕРСИЯ
             document.getElementById('do-login').addEventListener('click', async function() {
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
@@ -646,9 +649,31 @@
                 const password = document.getElementById('reg-password').value;
                 
                 if (name && email && phone && password) {
+                    if (password.length < 6) {
+                        alert('Пароль должен содержать минимум 6 символов');
+                        return;
+                    }
                     await registerUser(name, email, phone, password);
                 } else {
                     alert('Заполните все поля');
+                }
+            });
+
+            // Восстановление пароля
+            document.getElementById('forgot-password').addEventListener('click', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                
+                if (!email) {
+                    alert('Введите ваш email для восстановления пароля');
+                    return;
+                }
+                
+                try {
+                    await auth.sendPasswordResetEmail(email);
+                    alert('Письмо для восстановления пароля отправлено на ' + email);
+                } catch (error) {
+                    alert('Ошибка: ' + error.message);
                 }
             });
         });
@@ -700,7 +725,7 @@
                         errorMessage += 'Неверный формат email';
                         break;
                     case 'auth/weak-password':
-                        errorMessage += 'Пароль слишком слабый';
+                        errorMessage += 'Пароль слишком слабый (минимум 6 символов)';
                         break;
                     default:
                         errorMessage += error.message;
@@ -710,19 +735,26 @@
             }
         }
 
-        // Вход пользователя
+        // Вход пользователя - ИСПРАВЛЕННАЯ ВЕРСИЯ
         async function loginUser(email, password) {
-            console.log('Попытка входа:', email);
+            console.log('=== ДЕБАГ ВХОДА ===');
+            console.log('Email:', email);
+            console.log('Password length:', password.length);
             
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                console.log('Вход выполнен:', userCredential.user.uid);
+                const user = userCredential.user;
+                console.log('Вход выполнен:', user.uid);
                 
+                // Закрываем модальное окно
                 document.getElementById('login-modal').classList.add('hidden');
                 
                 // Очищаем форму
                 document.getElementById('login-email').value = '';
                 document.getElementById('login-password').value = '';
+                
+                // Показываем уведомление
+                showNotification('Вход выполнен успешно!', 'success');
                 
             } catch (error) {
                 console.error('Ошибка входа:', error);
@@ -730,13 +762,16 @@
                 
                 switch (error.code) {
                     case 'auth/user-not-found':
-                        errorMessage += 'Пользователь не найден';
+                        errorMessage += 'Пользователь с таким email не найден. Зарегистрируйтесь.';
                         break;
                     case 'auth/wrong-password':
-                        errorMessage += 'Неверный пароль';
+                        errorMessage += 'Неверный пароль. Попробуйте снова.';
                         break;
                     case 'auth/invalid-email':
                         errorMessage += 'Неверный формат email';
+                        break;
+                    case 'auth/invalid-login-credentials':
+                        errorMessage += 'Неверные учетные данные. Проверьте email и пароль.';
                         break;
                     default:
                         errorMessage += error.message;
