@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Личный кабинет - Эвакуатор 24/7</title>
+    <title>Личный кабинет - Evakurator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics-compat.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -257,76 +264,6 @@
             color: #333;
         }
         
-        .editable-field {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .edit-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        th {
-            color: #1a2a6c;
-            font-weight: 600;
-        }
-        
-        .status {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status-completed {
-            background-color: #e6f7ee;
-            color: #0a8c4d;
-        }
-        
-        .status-pending {
-            background-color: #fff4e6;
-            color: #e67e22;
-        }
-        
-        .status-cancelled {
-            background-color: #ffe6e6;
-            color: #e74c3c;
-        }
-        
-        .status-active {
-            background-color: #e6f3ff;
-            color: #1a73e8;
-        }
-        
-        .car-image {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 15px;
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1a2a6c;
-            font-size: 1.2rem;
-        }
-        
         .hidden {
             display: none !important;
         }
@@ -354,92 +291,6 @@
         .form-control:focus {
             outline: none;
             border-color: #1a2a6c;
-        }
-        
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        .calculator-result {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-        }
-        
-        .calculator-result h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .calculator-price {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        
-        .evacuation-map {
-            width: 100%;
-            height: 300px;
-            background: #f5f7fa;
-            border-radius: 10px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-        }
-        
-        .driver-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 10px;
-        }
-        
-        .driver-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .notification {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .notification-success {
-            background: #e6f7ee;
-            color: #0a8c4d;
-            border-left: 4px solid #0a8c4d;
-        }
-        
-        .notification-warning {
-            background: #fff4e6;
-            color: #e67e22;
-            border-left: 4px solid #e67e22;
-        }
-        
-        .notification-info {
-            background: #e6f3ff;
-            color: #1a73e8;
-            border-left: 4px solid #1a73e8;
         }
         
         /* Стили для модальных окон */
@@ -480,6 +331,33 @@
             color: #333;
         }
         
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-success {
+            background: #e6f7ee;
+            color: #0a8c4d;
+            border-left: 4px solid #0a8c4d;
+        }
+        
+        .notification-warning {
+            background: #fff4e6;
+            color: #e67e22;
+            border-left: 4px solid #e67e22;
+        }
+        
+        .notification-info {
+            background: #e6f3ff;
+            color: #1a73e8;
+            border-left: 4px solid #1a73e8;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -490,10 +368,6 @@
             }
             
             .info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .calculator-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -509,6 +383,25 @@
             }
         }
     </style>
+
+    <script>
+        // === КОНФИГУРАЦИЯ FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5wn4AeQIRpIlMqwqiQ8s_xioCzNIxuDQ",
+            authDomain: "evakurator-67e48.firebaseapp.com",
+            projectId: "evakurator-67e48",
+            storageBucket: "evakurator-67e48.firebasestorage.app",
+            messagingSenderId: "638085139833",
+            appId: "1:638085139833:web:d9b92baf0df438c28a33a8",
+            measurementId: "G-Z1W22F1P8G"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+    </script>
 </head>
 <body>
     <div class="container">
@@ -544,39 +437,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" data-section="evacuation">
-                            <i class="fas fa-truck-pickup"></i>
-                            <span>Вызвать эвакуатор</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-section="calculator">
-                            <i class="fas fa-calculator"></i>
-                            <span>Калькулятор</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-section="trips">
-                            <i class="fas fa-history"></i>
-                            <span>История поездок</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="#" class="nav-link" data-section="profile">
                             <i class="fas fa-user"></i>
                             <span>Мои данные</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-section="car">
-                            <i class="fas fa-car"></i>
-                            <span>Мой автомобиль</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-section="support">
-                            <i class="fas fa-headset"></i>
-                            <span>Поддержка</span>
                         </a>
                     </li>
                 </ul>
@@ -589,196 +452,28 @@
                     
                     <div id="guest-message" class="card">
                         <h3 class="card-title"><i class="fas fa-info-circle"></i> Добро пожаловать!</h3>
-                        <p>Войдите в систему или зарегистрируйтесь, чтобы получить доступ ко всем функциям личного кабинета.</p>
+                        <p>Войдите в систему или зарегистрируйтесь, чтобы получить доступ к личному кабинету.</p>
                     </div>
                     
                     <div id="user-dashboard" class="hidden">
                         <div class="stats-cards">
                             <div class="stat-card">
-                                <i class="fas fa-car-crash"></i>
-                                <h3 id="total-trips">0</h3>
-                                <p>Всего поездок</p>
+                                <i class="fas fa-user-check"></i>
+                                <h3 id="user-status-badge">Активен</h3>
+                                <p>Статус аккаунта</p>
                             </div>
                             <div class="stat-card">
-                                <i class="fas fa-road"></i>
-                                <h3 id="total-distance">0 км</h3>
-                                <p>Общий пробег</p>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-star"></i>
-                                <h3 id="user-rating">5.0</h3>
-                                <p>Ваш рейтинг</p>
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3 id="member-since">2024</h3>
+                                <p>Год регистрации</p>
                             </div>
                         </div>
                         
                         <div class="card">
-                            <h3 class="card-title"><i class="fas fa-clock"></i> Последняя поездка</h3>
-                            <div id="last-trip-info">
-                                <p style="text-align: center; color: #666; padding: 20px;">У вас еще не было поездок</p>
+                            <h3 class="card-title"><i class="fas fa-user-circle"></i> Ваш профиль</h3>
+                            <div class="info-grid" id="user-profile-info">
+                                <!-- Данные профиля будут здесь -->
                             </div>
-                        </div>
-                        
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-car"></i> Текущий автомобиль</h3>
-                            <div id="current-car-info">
-                                <p style="text-align: center; color: #666; padding: 20px;">Добавьте информацию об автомобиле в разделе "Мой автомобиль"</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Вызов эвакуатора -->
-                <section id="evacuation-section" class="content-section hidden">
-                    <h2 class="section-title">Вызов эвакуатора</h2>
-                    
-                    <div id="evacuation-guest" class="card">
-                        <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Требуется авторизация</h3>
-                        <p>Для вызова эвакуатора необходимо войти в систему.</p>
-                    </div>
-                    
-                    <div id="evacuation-form" class="hidden">
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Укажите адрес</h3>
-                            <div class="form-group">
-                                <label class="form-label">Откуда забрать автомобиль</label>
-                                <input type="text" class="form-control" id="pickup-address" placeholder="Введите адрес">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Куда доставить автомобиль</label>
-                                <input type="text" class="form-control" id="delivery-address" placeholder="Введите адрес">
-                            </div>
-                            
-                            <div class="evacuation-map">
-                                <i class="fas fa-map" style="font-size: 3rem; margin-bottom: 10px;"></i>
-                                <p>Карта вызова эвакуатора</p>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-car-side"></i> Информация об автомобиле</h3>
-                            <div class="info-grid" id="evacuation-car-info">
-                                <!-- Данные об автомобиле будут загружены здесь -->
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-credit-card"></i> Подтверждение вызова</h3>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-label">Примерная стоимость</div>
-                                    <div class="info-value" id="evac-price">2 500 руб.</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Примерное время подачи</div>
-                                    <div class="info-value" id="evac-time">15-25 минут</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-primary" id="call-evacuator" style="width: 100%; padding: 15px; margin-top: 20px; font-size: 1.2rem;">
-                                <i class="fas fa-phone"></i> Вызвать эвакуатор
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="evacuation-active" class="hidden">
-                        <div class="notification notification-info">
-                            <i class="fas fa-info-circle"></i>
-                            <div>
-                                <strong>Эвакуатор в пути</strong>
-                                <p>Водитель подъедет в течение 15-25 минут</p>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-truck-moving"></i> Текущий вызов</h3>
-                            <div class="driver-info">
-                                <div class="driver-avatar">АП</div>
-                                <div>
-                                    <h4>Алексей Петров</h4>
-                                    <p>Водитель эвакуатора</p>
-                                    <p><i class="fas fa-star" style="color: gold;"></i> 4.9 (127 отзывов)</p>
-                                </div>
-                            </div>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-label">Номер эвакуатора</div>
-                                    <div class="info-value">А 567 КР 777</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Телефон водителя</div>
-                                    <div class="info-value">+7 (912) 345-67-89</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Примерное время прибытия</div>
-                                    <div class="info-value">12 минут</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Статус</div>
-                                    <div class="info-value"><span class="status status-active">В пути</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Калькулятор -->
-                <section id="calculator-section" class="content-section hidden">
-                    <h2 class="section-title">Калькулятор стоимости</h2>
-                    
-                    <div class="calculator-grid">
-                        <div class="card">
-                            <h3 class="card-title"><i class="fas fa-calculator"></i> Параметры расчета</h3>
-                            <div class="form-group">
-                                <label class="form-label">Расстояние (км)</label>
-                                <input type="range" class="form-control" id="distance" min="1" max="100" value="15">
-                                <div class="info-value" id="distance-value">15 км</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Тип автомобиля</label>
-                                <select class="form-control" id="car-type">
-                                    <option value="light">Легковой автомобиль</option>
-                                    <option value="suv">Внедорожник</option>
-                                    <option value="minivan">Минивэн</option>
-                                    <option value="commercial">Коммерческий транспорт</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Срочность</label>
-                                <select class="form-control" id="urgency">
-                                    <option value="normal">Обычная (15-30 мин)</option>
-                                    <option value="urgent">Срочная (5-15 мин)</option>
-                                    <option value="emergency">Экстренная (до 5 мин)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Дополнительные услуги</label>
-                                <div>
-                                    <label><input type="checkbox" id="night-service"> Ночной вызов (+20%)</label><br>
-                                    <label><input type="checkbox" id="tech-help"> Техническая помощь на месте</label><br>
-                                    <label><input type="checkbox" id="waiting"> Ожидание водителя</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="calculator-result">
-                            <h3>Примерная стоимость</h3>
-                            <div class="calculator-price" id="calculated-price">2 500 ₽</div>
-                            <p>Итоговая стоимость может отличаться</p>
-                            <button class="btn btn-secondary" style="background: white; color: #1a2a6c; margin-top: 20px;">
-                                <i class="fas fa-truck-pickup"></i> Вызвать эвакуатор
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- История поездок -->
-                <section id="trips-section" class="content-section hidden">
-                    <h2 class="section-title">История поездок</h2>
-                    <div class="card">
-                        <div id="trips-history-content">
-                            <!-- История поездок будет загружена здесь -->
                         </div>
                     </div>
                 </section>
@@ -789,72 +484,65 @@
                     <div class="card">
                         <h3 class="card-title">
                             <i class="fas fa-user-circle"></i> Личная информация
-                            <button class="btn btn-primary btn-small" id="edit-profile-btn">Редактировать</button>
                         </h3>
                         <div class="info-grid" id="profile-info">
-                            <!-- Данные профиля будут загружены здесь -->
+                            <div class="info-item">
+                                <div class="info-label">Имя</div>
+                                <div class="info-value" id="profile-name">Не указано</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value" id="profile-email">Не указан</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Телефон</div>
+                                <div class="info-value" id="profile-phone">Не указан</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Дата регистрации</div>
+                                <div class="info-value" id="profile-join-date">Не указана</div>
+                            </div>
                         </div>
-                    </div>
-                </section>
-                
-                <!-- Мой автомобиль -->
-                <section id="car-section" class="content-section hidden">
-                    <h2 class="section-title">Мой автомобиль</h2>
-                    <div class="card">
-                        <h3 class="card-title">
-                            <i class="fas fa-car"></i> Информация об автомобиле
-                            <button class="btn btn-primary btn-small" id="edit-car-btn">Редактировать</button>
-                        </h3>
-                        <div class="info-grid" id="car-info">
-                            <!-- Данные об автомобиле будут загружены здесь -->
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Поддержка -->
-                <section id="support-section" class="content-section hidden">
-                    <h2 class="section-title">Поддержка</h2>
-                    <div class="card">
-                        <p>Для обращения в поддержку войдите в систему.</p>
                     </div>
                 </section>
             </div>
         </div>
     </div>
 
-    <!-- Модальные окна -->
+    <!-- Модальное окно входа -->
     <div id="login-modal" class="modal hidden">
         <div class="modal-content">
             <button class="modal-close" id="close-login">&times;</button>
             <h2 style="margin-bottom: 20px; color: #1a2a6c;">Вход в систему</h2>
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" id="login-email">
+                <input type="email" class="form-control" id="login-email" placeholder="Ваш email">
             </div>
             <div class="form-group">
                 <label class="form-label">Пароль</label>
-                <input type="password" class="form-control" id="login-password">
+                <input type="password" class="form-control" id="login-password" placeholder="Ваш пароль">
             </div>
             <button class="btn btn-primary" id="do-login" style="width: 100%; margin-bottom: 15px;">Войти</button>
             <button class="btn btn-secondary" id="cancel-login" style="width: 100%;">Отмена</button>
         </div>
     </div>
 
+    <!-- Модальное окно регистрации -->
     <div id="register-modal" class="modal hidden">
         <div class="modal-content">
             <button class="modal-close" id="close-register">&times;</button>
             <h2 style="margin-bottom: 20px; color: #1a2a6c;">Регистрация</h2>
             <div class="form-group">
                 <label class="form-label">Имя</label>
-                <input type="text" class="form-control" id="reg-name" placeholder="Введите ваше имя">
+                <input type="text" class="form-control" id="reg-name" placeholder="Ваше имя">
             </div>
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" id="reg-email" placeholder="Введите ваш email">
+                <input type="email" class="form-control" id="reg-email" placeholder="Ваш email">
             </div>
             <div class="form-group">
                 <label class="form-label">Телефон</label>
-                <input type="tel" class="form-control" id="reg-phone" placeholder="Введите ваш телефон">
+                <input type="tel" class="form-control" id="reg-phone" placeholder="Ваш телефон">
             </div>
             <div class="form-group">
                 <label class="form-label">Пароль</label>
@@ -865,81 +553,26 @@
         </div>
     </div>
 
-    <!-- Модальное окно редактирования профиля -->
-    <div id="edit-profile-modal" class="modal hidden">
-        <div class="modal-content">
-            <button class="modal-close" id="close-edit-profile">&times;</button>
-            <h2 style="margin-bottom: 20px; color: #1a2a6c;">Редактирование профиля</h2>
-            <div class="form-group">
-                <label class="form-label">Имя</label>
-                <input type="text" class="form-control" id="edit-profile-name">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" id="edit-profile-email">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Телефон</label>
-                <input type="tel" class="form-control" id="edit-profile-phone">
-            </div>
-            <button class="btn btn-primary" id="save-profile-btn" style="width: 100%; margin-bottom: 15px;">Сохранить</button>
-            <button class="btn btn-secondary" id="cancel-edit-profile" style="width: 100%;">Отмена</button>
-        </div>
-    </div>
-
-    <!-- Модальное окно редактирования автомобиля -->
-    <div id="edit-car-modal" class="modal hidden">
-        <div class="modal-content">
-            <button class="modal-close" id="close-edit-car">&times;</button>
-            <h2 style="margin-bottom: 20px; color: #1a2a6c;">Редактирование автомобиля</h2>
-            <div class="form-group">
-                <label class="form-label">Марка</label>
-                <input type="text" class="form-control" id="edit-car-brand" placeholder="Например: Toyota">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Модель</label>
-                <input type="text" class="form-control" id="edit-car-model" placeholder="Например: Camry">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Год выпуска</label>
-                <input type="number" class="form-control" id="edit-car-year" placeholder="Например: 2018">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Госномер</label>
-                <input type="text" class="form-control" id="edit-car-plate" placeholder="Например: А123БВ777">
-            </div>
-            <div class="form-group">
-                <label class="form-label">VIN</label>
-                <input type="text" class="form-control" id="edit-car-vin" placeholder="Введите VIN номер">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Цвет</label>
-                <input type="text" class="form-control" id="edit-car-color" placeholder="Например: Серебристый">
-            </div>
-            <button class="btn btn-primary" id="save-car-btn" style="width: 100%; margin-bottom: 15px;">Сохранить</button>
-            <button class="btn btn-secondary" id="cancel-edit-car" style="width: 100%;">Отмена</button>
-        </div>
-    </div>
-
     <script>
-        // Система аутентификации и данных
+        // === СИСТЕМА АУТЕНТИФИКАЦИИ ===
         let currentUser = null;
-        let evacuationActive = false;
-        let userData = {
-            profile: {},
-            car: {},
-            trips: []
-        };
 
-        // Загрузка данных из localStorage при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserData();
-            
-            // Убедимся, что модальные окна скрыты при загрузке
-            document.getElementById('login-modal').classList.add('hidden');
-            document.getElementById('register-modal').classList.add('hidden');
-            document.getElementById('edit-profile-modal').classList.add('hidden');
-            document.getElementById('edit-car-modal').classList.add('hidden');
+            console.log('Приложение загружено, проверяем авторизацию...');
+
+            // Слушатель изменения состояния авторизации
+            auth.onAuthStateChanged((user) => {
+                console.log('Состояние авторизации изменилось:', user);
+                if (user) {
+                    // Пользователь вошел в систему
+                    currentUser = user;
+                    loadUserData(user.uid);
+                } else {
+                    // Пользователь вышел из системы
+                    currentUser = null;
+                    showGuestView();
+                }
+            });
 
             // Навигация по разделам
             const navLinks = document.querySelectorAll('.nav-link');
@@ -968,16 +601,6 @@
                 document.getElementById('register-modal').classList.remove('hidden');
             });
 
-            // Редактирование профиля
-            document.getElementById('edit-profile-btn').addEventListener('click', function() {
-                openEditProfileModal();
-            });
-
-            // Редактирование автомобиля
-            document.getElementById('edit-car-btn').addEventListener('click', function() {
-                openEditCarModal();
-            });
-
             // Закрытие модальных окон
             function setupModalClose(modalId, closeButtonId, cancelButtonId = null) {
                 const modal = document.getElementById(modalId);
@@ -998,527 +621,225 @@
                         modal.classList.add('hidden');
                     }
                 });
-                
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                        modal.classList.add('hidden');
-                    }
-                });
             }
 
-            // Настройка закрытия для всех модальных окон
             setupModalClose('login-modal', 'close-login', 'cancel-login');
             setupModalClose('register-modal', 'close-register', 'cancel-register');
-            setupModalClose('edit-profile-modal', 'close-edit-profile', 'cancel-edit-profile');
-            setupModalClose('edit-car-modal', 'close-edit-car', 'cancel-edit-car');
 
             // Вход в систему
-            document.getElementById('do-login').addEventListener('click', function() {
+            document.getElementById('do-login').addEventListener('click', async function() {
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
                 
                 if (email && password) {
-                    loginUser(email, password);
+                    await loginUser(email, password);
                 } else {
                     alert('Заполните все поля');
                 }
             });
 
             // Регистрация
-            document.getElementById('do-register').addEventListener('click', function() {
+            document.getElementById('do-register').addEventListener('click', async function() {
                 const name = document.getElementById('reg-name').value;
                 const email = document.getElementById('reg-email').value;
                 const phone = document.getElementById('reg-phone').value;
                 const password = document.getElementById('reg-password').value;
                 
                 if (name && email && phone && password) {
-                    registerUser(name, email, phone, password);
+                    await registerUser(name, email, phone, password);
                 } else {
                     alert('Заполните все поля');
                 }
             });
-
-            // Сохранение профиля
-            document.getElementById('save-profile-btn').addEventListener('click', function() {
-                saveProfile();
-            });
-
-            // Сохранение автомобиля
-            document.getElementById('save-car-btn').addEventListener('click', function() {
-                saveCar();
-            });
-
-            // Калькулятор
-            document.getElementById('distance').addEventListener('input', function() {
-                document.getElementById('distance-value').textContent = this.value + ' км';
-                calculatePrice();
-            });
-
-            document.getElementById('car-type').addEventListener('change', calculatePrice);
-            document.getElementById('urgency').addEventListener('change', calculatePrice);
-            document.getElementById('night-service').addEventListener('change', calculatePrice);
-            document.getElementById('tech-help').addEventListener('change', calculatePrice);
-            document.getElementById('waiting').addEventListener('change', calculatePrice);
-
-            // Вызов эвакуатора
-            document.getElementById('call-evacuator').addEventListener('click', function() {
-                evacuationActive = true;
-                document.getElementById('evacuation-form').classList.add('hidden');
-                document.getElementById('evacuation-active').classList.remove('hidden');
-                
-                simulateEvacuationStatus();
-            });
-
-            // Автоматическое обновление данных
-            setInterval(updateLiveData, 30000);
         });
 
-        function loadUserData() {
-            const savedData = localStorage.getItem('evacuationUserData');
-            if (savedData) {
-                userData = JSON.parse(savedData);
+        // === FIREBASE ФУНКЦИИ ===
+
+        // Регистрация пользователя
+        async function registerUser(name, email, phone, password) {
+            console.log('Начало регистрации:', { name, email, phone });
+            
+            try {
+                // 1. Создаем пользователя в Firebase Authentication
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                console.log('Пользователь создан в Auth:', user.uid);
+
+                // 2. Сохраняем дополнительные данные в Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    joinDate: new Date().toISOString(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('Данные сохранены в Firestore');
+
+                // 3. Закрываем модальное окно
+                document.getElementById('register-modal').classList.add('hidden');
                 
-                // Если есть сохраненный пользователь, автоматически входим
-                if (userData.currentUser) {
-                    currentUser = userData.currentUser;
-                    updateUIForUser();
+                // 4. Показываем уведомление
+                showNotification('Регистрация прошла успешно! Добро пожаловать!', 'success');
+                
+                // 5. Очищаем форму
+                document.getElementById('reg-name').value = '';
+                document.getElementById('reg-email').value = '';
+                document.getElementById('reg-phone').value = '';
+                document.getElementById('reg-password').value = '';
+
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                let errorMessage = 'Ошибка регистрации: ';
+                
+                // Преобразуем код ошибки в понятное сообщение
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'Этот email уже используется';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Пароль слишком слабый';
+                        break;
+                    default:
+                        errorMessage += error.message;
                 }
+                
+                alert(errorMessage);
             }
         }
 
-        function saveUserData() {
-            userData.currentUser = currentUser;
-            localStorage.setItem('evacuationUserData', JSON.stringify(userData));
-        }
-
-        function loginUser(email, password) {
-            // Проверяем, есть ли пользователь в сохраненных данных
-            const userKey = email.toLowerCase();
+        // Вход пользователя
+        async function loginUser(email, password) {
+            console.log('Попытка входа:', email);
             
-            if (userData.users && userData.users[userKey] && userData.users[userKey].password === password) {
-                currentUser = userData.users[userKey];
-                updateUIForUser();
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log('Вход выполнен:', userCredential.user.uid);
+                
                 document.getElementById('login-modal').classList.add('hidden');
                 
+                // Очищаем форму
                 document.getElementById('login-email').value = '';
                 document.getElementById('login-password').value = '';
                 
-                showNotification('Вход выполнен успешно!', 'success');
-            } else {
-                alert('Неверный email или пароль');
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                let errorMessage = 'Ошибка входа: ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'Пользователь не найден';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Неверный пароль';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
             }
         }
 
-        function registerUser(name, email, phone, password) {
-            const userKey = email.toLowerCase();
+        // Загрузка данных пользователя
+        async function loadUserData(userId) {
+            console.log('Загрузка данных пользователя:', userId);
             
-            // Инициализируем объект users если его нет
-            if (!userData.users) {
-                userData.users = {};
+            try {
+                // Загружаем данные из Firestore
+                const userDoc = await db.collection('users').doc(userId).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    console.log('Данные пользователя:', userData);
+                    
+                    currentUser = {
+                        uid: userId,
+                        ...userData
+                    };
+                    
+                    updateUIForUser(userData);
+                    showNotification('Добро пожаловать, ' + userData.name + '!', 'success');
+                } else {
+                    console.error('Документ пользователя не найден');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
             }
-            
-            // Создаем нового пользователя
-            userData.users[userKey] = {
-                name: name,
-                email: email,
-                phone: phone,
-                joinDate: new Date().getFullYear().toString(),
-                password: password // В реальном приложении пароль должен хэшироваться
-            };
-            
-            currentUser = userData.users[userKey];
-            
-            // Инициализируем данные профиля и автомобиля для нового пользователя
-            if (!userData.profile) userData.profile = {};
-            if (!userData.car) userData.car = {};
-            if (!userData.trips) userData.trips = [];
-            
-            userData.profile[userKey] = {
-                name: name,
-                email: email,
-                phone: phone
-            };
-            
-            saveUserData();
-            updateUIForUser();
-            document.getElementById('register-modal').classList.add('hidden');
-            
-            document.getElementById('reg-name').value = '';
-            document.getElementById('reg-email').value = '';
-            document.getElementById('reg-phone').value = '';
-            document.getElementById('reg-password').value = '';
-            
-            showNotification('Регистрация прошла успешно! Добро пожаловать в личный кабинет.', 'success');
         }
 
-        function updateUIForUser() {
-            const userKey = currentUser.email.toLowerCase();
+        // Показать гостевой вид
+        function showGuestView() {
+            console.log('Показ гостевого вида');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('user-section').classList.add('hidden');
+            document.getElementById('guest-message').classList.remove('hidden');
+            document.getElementById('user-dashboard').classList.add('hidden');
+        }
+
+        // Обновить интерфейс для авторизованного пользователя
+        function updateUIForUser(userData) {
+            console.log('Обновление UI для пользователя:', userData);
             
+            // Обновляем шапку
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('user-section').classList.remove('hidden');
             
-            document.getElementById('user-name').textContent = currentUser.name;
-            document.getElementById('user-avatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('');
-            document.getElementById('user-status').textContent = `Клиент с ${currentUser.joinDate} года`;
+            document.getElementById('user-name').textContent = userData.name;
+            document.getElementById('user-avatar').textContent = userData.name.split(' ').map(n => n[0]).join('');
             
+            const joinYear = new Date(userData.joinDate).getFullYear();
+            document.getElementById('user-status').textContent = `Клиент с ${joinYear} года`;
+            
+            // Показываем основной контент
             document.getElementById('guest-message').classList.add('hidden');
             document.getElementById('user-dashboard').classList.remove('hidden');
-            document.getElementById('evacuation-guest').classList.add('hidden');
-            document.getElementById('evacuation-form').classList.remove('hidden');
             
-            // Обновляем данные во всех разделах
-            updateProfileData();
-            updateCarData();
-            updateTripsHistory();
-            updateEvacuationCarInfo();
-            updateDashboard();
+            // Обновляем профиль
+            updateProfileDisplay(userData);
         }
 
-        function openEditProfileModal() {
-            const userKey = currentUser.email.toLowerCase();
-            const profile = userData.profile[userKey] || {};
+        // Обновить отображение профиля
+        function updateProfileDisplay(userData) {
+            const joinDate = new Date(userData.joinDate).toLocaleDateString('ru-RU');
             
-            document.getElementById('edit-profile-name').value = profile.name || currentUser.name || '';
-            document.getElementById('edit-profile-email').value = profile.email || currentUser.email || '';
-            document.getElementById('edit-profile-phone').value = profile.phone || currentUser.phone || '';
+            // Обновляем раздел профиля
+            document.getElementById('profile-name').textContent = userData.name || 'Не указано';
+            document.getElementById('profile-email').textContent = userData.email || 'Не указан';
+            document.getElementById('profile-phone').textContent = userData.phone || 'Не указан';
+            document.getElementById('profile-join-date').textContent = joinDate;
             
-            document.getElementById('edit-profile-modal').classList.remove('hidden');
-        }
-
-        function openEditCarModal() {
-            const userKey = currentUser.email.toLowerCase();
-            const car = userData.car[userKey] || {};
-            
-            document.getElementById('edit-car-brand').value = car.brand || '';
-            document.getElementById('edit-car-model').value = car.model || '';
-            document.getElementById('edit-car-year').value = car.year || '';
-            document.getElementById('edit-car-plate').value = car.plate || '';
-            document.getElementById('edit-car-vin').value = car.vin || '';
-            document.getElementById('edit-car-color').value = car.color || '';
-            
-            document.getElementById('edit-car-modal').classList.remove('hidden');
-        }
-
-        function saveProfile() {
-            const userKey = currentUser.email.toLowerCase();
-            
-            if (!userData.profile[userKey]) {
-                userData.profile[userKey] = {};
-            }
-            
-            userData.profile[userKey] = {
-                name: document.getElementById('edit-profile-name').value,
-                email: document.getElementById('edit-profile-email').value,
-                phone: document.getElementById('edit-profile-phone').value
-            };
-            
-            // Обновляем текущего пользователя
-            currentUser.name = userData.profile[userKey].name;
-            currentUser.email = userData.profile[userKey].email;
-            currentUser.phone = userData.profile[userKey].phone;
-            
-            saveUserData();
-            updateUIForUser();
-            document.getElementById('edit-profile-modal').classList.add('hidden');
-            
-            showNotification('Профиль успешно обновлен!', 'success');
-        }
-
-        function saveCar() {
-            const userKey = currentUser.email.toLowerCase();
-            
-            if (!userData.car[userKey]) {
-                userData.car[userKey] = {};
-            }
-            
-            userData.car[userKey] = {
-                brand: document.getElementById('edit-car-brand').value,
-                model: document.getElementById('edit-car-model').value,
-                year: document.getElementById('edit-car-year').value,
-                plate: document.getElementById('edit-car-plate').value,
-                vin: document.getElementById('edit-car-vin').value,
-                color: document.getElementById('edit-car-color').value
-            };
-            
-            saveUserData();
-            updateUIForUser();
-            document.getElementById('edit-car-modal').classList.add('hidden');
-            
-            showNotification('Данные автомобиля успешно обновлены!', 'success');
-        }
-
-        function updateProfileData() {
-            const userKey = currentUser.email.toLowerCase();
-            const profile = userData.profile[userKey] || currentUser;
+            // Обновляем дашборд
+            document.getElementById('member-since').textContent = new Date(userData.joinDate).getFullYear();
             
             const profileHTML = `
                 <div class="info-item">
-                    <div class="info-label">ФИО</div>
-                    <div class="info-value">${profile.name || 'Не указано'}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Телефон</div>
-                    <div class="info-value">${profile.phone || 'Не указан'}</div>
+                    <div class="info-label">Имя</div>
+                    <div class="info-value">${userData.name || 'Не указано'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Email</div>
-                    <div class="info-value">${profile.email || 'Не указан'}</div>
+                    <div class="info-value">${userData.email || 'Не указан'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Телефон</div>
+                    <div class="info-value">${userData.phone || 'Не указан'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Дата регистрации</div>
-                    <div class="info-value">${currentUser.joinDate} год</div>
+                    <div class="info-value">${joinDate}</div>
                 </div>
             `;
             
-            document.getElementById('profile-info').innerHTML = profileHTML;
+            document.getElementById('user-profile-info').innerHTML = profileHTML;
         }
 
-        function updateCarData() {
-            const userKey = currentUser.email.toLowerCase();
-            const car = userData.car[userKey] || {};
-            
-            if (Object.keys(car).length === 0) {
-                document.getElementById('car-info').innerHTML = `
-                    <div class="info-item" style="grid-column: 1 / -1;">
-                        <div class="info-label">Информация об автомобиле</div>
-                        <div class="info-value">Данные об автомобиле не указаны. Нажмите "Редактировать", чтобы добавить информацию.</div>
-                    </div>
-                `;
-            } else {
-                const carHTML = `
-                    <div class="info-item">
-                        <div class="info-label">Марка</div>
-                        <div class="info-value">${car.brand || 'Не указана'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Модель</div>
-                        <div class="info-value">${car.model || 'Не указана'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Год выпуска</div>
-                        <div class="info-value">${car.year || 'Не указан'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Госномер</div>
-                        <div class="info-value">${car.plate || 'Не указан'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">VIN</div>
-                        <div class="info-value">${car.vin || 'Не указан'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Цвет</div>
-                        <div class="info-value">${car.color || 'Не указан'}</div>
-                    </div>
-                `;
-                document.getElementById('car-info').innerHTML = carHTML;
-            }
-        }
-
-        function updateEvacuationCarInfo() {
-            const userKey = currentUser.email.toLowerCase();
-            const car = userData.car[userKey] || {};
-            
-            const carInfoHTML = `
-                <div class="info-item">
-                    <div class="info-label">Марка и модель</div>
-                    <div class="info-value">${car.brand && car.model ? `${car.brand} ${car.model}` : 'Не указана'}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Госномер</div>
-                    <div class="info-value">${car.plate || 'Не указан'}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Тип проблемы</div>
-                    <select class="form-control" id="problem-type">
-                        <option value="breakdown">Поломка</option>
-                        <option value="accident">ДТП</option>
-                        <option value="battery">Разряд аккумулятора</option>
-                        <option value="tire">Прокол колеса</option>
-                        <option value="other">Другое</option>
-                    </select>
-                </div>
-            `;
-            
-            document.getElementById('evacuation-car-info').innerHTML = carInfoHTML;
-        }
-
-        function updateTripsHistory() {
-            const userKey = currentUser.email.toLowerCase();
-            const trips = userData.trips.filter(trip => trip.userKey === userKey) || [];
-            
-            if (trips.length === 0) {
-                document.getElementById('trips-history-content').innerHTML = `
-                    <p style="text-align: center; color: #666; padding: 20px;">У вас еще не было поездок</p>
-                `;
-            } else {
-                let tripsHTML = '<table><thead><tr><th>Дата</th><th>Маршрут</th><th>Расстояние</th><th>Стоимость</th><th>Статус</th></tr></thead><tbody>';
-                
-                trips.forEach(trip => {
-                    tripsHTML += `
-                        <tr>
-                            <td>${trip.date}</td>
-                            <td>${trip.from} → ${trip.to}</td>
-                            <td>${trip.distance} км</td>
-                            <td>${trip.cost} руб.</td>
-                            <td><span class="status status-completed">Завершена</span></td>
-                        </tr>
-                    `;
-                });
-                
-                tripsHTML += '</tbody></table>';
-                document.getElementById('trips-history-content').innerHTML = tripsHTML;
-            }
-        }
-
-        function updateDashboard() {
-            const userKey = currentUser.email.toLowerCase();
-            const trips = userData.trips.filter(trip => trip.userKey === userKey) || [];
-            
-            // Обновляем статистику
-            document.getElementById('total-trips').textContent = trips.length;
-            
-            const totalDistance = trips.reduce((sum, trip) => sum + (parseInt(trip.distance) || 0), 0);
-            document.getElementById('total-distance').textContent = totalDistance + ' км';
-            
-            // Обновляем информацию о последней поездке
-            if (trips.length > 0) {
-                const lastTrip = trips[trips.length - 1];
-                document.getElementById('last-trip-info').innerHTML = `
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">Дата</div>
-                            <div class="info-value">${lastTrip.date}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Маршрут</div>
-                            <div class="info-value">${lastTrip.from} → ${lastTrip.to}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Стоимость</div>
-                            <div class="info-value">${lastTrip.cost} руб.</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Статус</div>
-                            <div class="info-value"><span class="status status-completed">Завершена</span></div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Обновляем информацию об автомобиле в дашборде
-            const car = userData.car[userKey] || {};
-            if (Object.keys(car).length > 0) {
-                document.getElementById('current-car-info').innerHTML = `
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">Марка и модель</div>
-                            <div class="info-value">${car.brand} ${car.model}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Год выпуска</div>
-                            <div class="info-value">${car.year}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Госномер</div>
-                            <div class="info-value">${car.plate}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">VIN</div>
-                            <div class="info-value">${car.vin}</div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function calculatePrice() {
-            const distance = parseInt(document.getElementById('distance').value);
-            const carType = document.getElementById('car-type').value;
-            const urgency = document.getElementById('urgency').value;
-            
-            let basePrice = distance * 100;
-            
-            const carMultipliers = {
-                'light': 1,
-                'suv': 1.3,
-                'minivan': 1.5,
-                'commercial': 2
-            };
-            
-            const urgencyMultipliers = {
-                'normal': 1,
-                'urgent': 1.5,
-                'emergency': 2
-            };
-            
-            basePrice *= carMultipliers[carType];
-            basePrice *= urgencyMultipliers[urgency];
-            
-            if (document.getElementById('night-service').checked) {
-                basePrice *= 1.2;
-            }
-            if (document.getElementById('tech-help').checked) {
-                basePrice += 500;
-            }
-            if (document.getElementById('waiting').checked) {
-                basePrice += 300;
-            }
-            
-            document.getElementById('calculated-price').textContent = Math.round(basePrice) + ' ₽';
-            document.getElementById('evac-price').textContent = Math.round(basePrice) + ' руб.';
-        }
-
-        function simulateEvacuationStatus() {
-            let timeLeft = 15;
-            const userKey = currentUser.email.toLowerCase();
-            
-            const timer = setInterval(() => {
-                if (timeLeft > 0) {
-                    document.querySelector('#evacuation-active .info-grid .info-item:nth-child(3) .info-value').textContent = 
-                        timeLeft + ' минут';
-                    timeLeft--;
-                } else {
-                    clearInterval(timer);
-                    document.querySelector('#evacuation-active .info-grid .info-item:nth-child(4) .info-value').innerHTML = 
-                        '<span class="status status-completed">Завершена</span>';
-                    
-                    // Добавляем поездку в историю
-                    const newTrip = {
-                        userKey: userKey,
-                        date: new Date().toLocaleDateString('ru-RU'),
-                        from: document.getElementById('pickup-address').value,
-                        to: document.getElementById('delivery-address').value,
-                        distance: document.getElementById('distance').value,
-                        cost: document.getElementById('evac-price').textContent
-                    };
-                    
-                    if (!userData.trips) userData.trips = [];
-                    userData.trips.push(newTrip);
-                    saveUserData();
-                    
-                    showNotification('Эвакуатор прибыл! Поездка завершена.', 'success');
-                    updateUIForUser();
-                }
-            }, 60000);
-        }
-
-        function updateLiveData() {
-            if (currentUser) {
-                const rating = parseFloat(document.getElementById('user-rating').textContent);
-                const newRating = (rating + (Math.random() * 0.1 - 0.05)).toFixed(1);
-                document.getElementById('user-rating').textContent = Math.max(4.0, Math.min(5.0, newRating));
-                
-                if (evacuationActive) {
-                    const timeElement = document.querySelector('#evacuation-active .info-grid .info-item:nth-child(3) .info-value');
-                    let timeLeft = parseInt(timeElement.textContent);
-                    if (timeLeft > 1) {
-                        timeElement.textContent = (timeLeft - 1) + ' минут';
-                    }
-                }
-            }
-        }
-
+        // Показать уведомление
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
@@ -1534,9 +855,6 @@
                 notification.remove();
             }, 5000);
         }
-
-        // Инициализация калькулятора
-        calculatePrice();
     </script>
 </body>
 </html>
