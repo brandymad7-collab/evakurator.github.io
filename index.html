@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Личный кабинет - Служба эвакуации</title>
+    <title>Личный кабинет - Эвакуатор 24/7</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -42,9 +42,17 @@
             gap: 15px;
         }
         
-        .logo i {
-            font-size: 2.5rem;
-            color: #1a2a6c;
+        .logo-img {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
         
         .logo-text h1 {
@@ -84,6 +92,35 @@
         .user-details p {
             color: #666;
             font-size: 0.9rem;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
         .dashboard {
@@ -253,6 +290,11 @@
             color: #e74c3c;
         }
         
+        .status-active {
+            background-color: #e6f3ff;
+            color: #1a73e8;
+        }
+        
         .car-image {
             width: 100%;
             border-radius: 10px;
@@ -270,6 +312,117 @@
             display: none;
         }
         
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a2a6c;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .calculator-result {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .calculator-result h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .calculator-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .evacuation-map {
+            width: 100%;
+            height: 300px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        .driver-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-success {
+            background: #e6f7ee;
+            color: #0a8c4d;
+            border-left: 4px solid #0a8c4d;
+        }
+        
+        .notification-warning {
+            background: #fff4e6;
+            color: #e67e22;
+            border-left: 4px solid #e67e22;
+        }
+        
+        .notification-info {
+            background: #e6f3ff;
+            color: #1a73e8;
+            border-left: 4px solid #1a73e8;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -283,10 +436,19 @@
                 grid-template-columns: 1fr;
             }
             
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
             header {
                 flex-direction: column;
                 text-align: center;
                 gap: 20px;
+            }
+            
+            .auth-buttons {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -295,18 +457,22 @@
     <div class="container">
         <header>
             <div class="logo">
-                <i class="fas fa-truck-pickup"></i>
+                <div class="logo-img">E24</div>
                 <div class="logo-text">
                     <h1>Эвакуатор 24/7</h1>
-                    <p>Служба экстренной эвакуации автомобилей</p>
+                    <p>Круглосуточная служба эвакуации</p>
                 </div>
             </div>
-            <div class="user-info">
-                <div class="user-avatar">ИИ</div>
+            <div id="user-section" class="user-info hidden">
+                <div class="user-avatar" id="user-avatar">ИИ</div>
                 <div class="user-details">
-                    <h3>Иван Иванов</h3>
-                    <p>Клиент с 2022 года</p>
+                    <h3 id="user-name">Иван Иванов</h3>
+                    <p id="user-status">Клиент с 2022 года</p>
                 </div>
+            </div>
+            <div id="auth-section" class="auth-buttons">
+                <button class="btn btn-primary" id="login-btn">Войти</button>
+                <button class="btn btn-secondary" id="register-btn">Регистрация</button>
             </div>
         </header>
         
@@ -318,6 +484,18 @@
                         <a href="#" class="nav-link active" data-section="dashboard">
                             <i class="fas fa-tachometer-alt"></i>
                             <span>Обзор</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="evacuation">
+                            <i class="fas fa-truck-pickup"></i>
+                            <span>Вызвать эвакуатор</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="calculator">
+                            <i class="fas fa-calculator"></i>
+                            <span>Калькулятор</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -352,185 +530,320 @@
                 <section id="dashboard-section" class="content-section">
                     <h2 class="section-title">Обзор аккаунта</h2>
                     
-                    <div class="stats-cards">
-                        <div class="stat-card">
-                            <i class="fas fa-car-crash"></i>
-                            <h3>12</h3>
-                            <p>Всего поездок</p>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-road"></i>
-                            <h3>347 км</h3>
-                            <p>Общий пробег</p>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-star"></i>
-                            <h3>4.8</h3>
-                            <p>Ваш рейтинг</p>
-                        </div>
+                    <div id="guest-message" class="card">
+                        <h3 class="card-title"><i class="fas fa-info-circle"></i> Добро пожаловать!</h3>
+                        <p>Войдите в систему или зарегистрируйтесь, чтобы получить доступ ко всем функциям личного кабинета.</p>
                     </div>
                     
-                    <div class="card">
-                        <h3 class="card-title"><i class="fas fa-clock"></i> Последняя поездка</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">Дата</div>
-                                <div class="info-value">15 мая 2023</div>
+                    <div id="user-dashboard" class="hidden">
+                        <div class="stats-cards">
+                            <div class="stat-card">
+                                <i class="fas fa-car-crash"></i>
+                                <h3 id="total-trips">12</h3>
+                                <p>Всего поездок</p>
                             </div>
-                            <div class="info-item">
-                                <div class="info-label">Маршрут</div>
-                                <div class="info-value">ул. Ленина → СТО "Автодоктор"</div>
+                            <div class="stat-card">
+                                <i class="fas fa-road"></i>
+                                <h3 id="total-distance">347 км</h3>
+                                <p>Общий пробег</p>
                             </div>
-                            <div class="info-item">
-                                <div class="info-label">Стоимость</div>
-                                <div class="info-value">2 500 руб.</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Статус</div>
-                                <div class="info-value"><span class="status status-completed">Завершена</span></div>
+                            <div class="stat-card">
+                                <i class="fas fa-star"></i>
+                                <h3 id="user-rating">4.8</h3>
+                                <p>Ваш рейтинг</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3 class="card-title"><i class="fas fa-car"></i> Текущий автомобиль</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">Марка и модель</div>
-                                <div class="info-value">Toyota Camry</div>
+                        
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-clock"></i> Последняя поездка</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Дата</div>
+                                    <div class="info-value">15 мая 2023</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Маршрут</div>
+                                    <div class="info-value">ул. Ленина → СТО "Автодоктор"</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Стоимость</div>
+                                    <div class="info-value">2 500 руб.</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Статус</div>
+                                    <div class="info-value"><span class="status status-completed">Завершена</span></div>
+                                </div>
                             </div>
-                            <div class="info-item">
-                                <div class="info-label">Год выпуска</div>
-                                <div class="info-value">2018</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Госномер</div>
-                                <div class="info-value">А123БВ777</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">VIN</div>
-                                <div class="info-value">JTDBR32E800123456</div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-car"></i> Текущий автомобиль</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Марка и модель</div>
+                                    <div class="info-value">Toyota Camry</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Год выпуска</div>
+                                    <div class="info-value">2018</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Госномер</div>
+                                    <div class="info-value">А123БВ777</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">VIN</div>
+                                    <div class="info-value">JTDBR32E800123456</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
                 
-                <!-- История поездок -->
+                <!-- Вызов эвакуатора -->
+                <section id="evacuation-section" class="content-section hidden">
+                    <h2 class="section-title">Вызов эвакуатора</h2>
+                    
+                    <div id="evacuation-guest" class="card">
+                        <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Требуется авторизация</h3>
+                        <p>Для вызова эвакуатора необходимо войти в систему.</p>
+                    </div>
+                    
+                    <div id="evacuation-form" class="hidden">
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Укажите адрес</h3>
+                            <div class="form-group">
+                                <label class="form-label">Откуда забрать автомобиль</label>
+                                <input type="text" class="form-control" id="pickup-address" placeholder="Введите адрес">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Куда доставить автомобиль</label>
+                                <input type="text" class="form-control" id="delivery-address" placeholder="Введите адрес">
+                            </div>
+                            
+                            <div class="evacuation-map">
+                                <i class="fas fa-map" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                                <p>Карта вызова эвакуатора</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-car-side"></i> Информация об автомобиле</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Марка и модель</div>
+                                    <div class="info-value">Toyota Camry</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Госномер</div>
+                                    <div class="info-value">А123БВ777</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Тип проблемы</div>
+                                    <select class="form-control" id="problem-type">
+                                        <option value="breakdown">Поломка</option>
+                                        <option value="accident">ДТП</option>
+                                        <option value="battery">Разряд аккумулятора</option>
+                                        <option value="tire">Прокол колеса</option>
+                                        <option value="other">Другое</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-credit-card"></i> Подтверждение вызова</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Примерная стоимость</div>
+                                    <div class="info-value" id="evac-price">2 500 руб.</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Примерное время подачи</div>
+                                    <div class="info-value" id="evac-time">15-25 минут</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="call-evacuator" style="width: 100%; padding: 15px; margin-top: 20px; font-size: 1.2rem;">
+                                <i class="fas fa-phone"></i> Вызвать эвакуатор
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="evacuation-active" class="hidden">
+                        <div class="notification notification-info">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Эвакуатор в пути</strong>
+                                <p>Водитель подъедет в течение 15-25 минут</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-truck-moving"></i> Текущий вызов</h3>
+                            <div class="driver-info">
+                                <div class="driver-avatar">АП</div>
+                                <div>
+                                    <h4>Алексей Петров</h4>
+                                    <p>Водитель эвакуатора</p>
+                                    <p><i class="fas fa-star" style="color: gold;"></i> 4.9 (127 отзывов)</p>
+                                </div>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Номер эвакуатора</div>
+                                    <div class="info-value">А 567 КР 777</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Телефон водителя</div>
+                                    <div class="info-value">+7 (912) 345-67-89</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Примерное время прибытия</div>
+                                    <div class="info-value">12 минут</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Статус</div>
+                                    <div class="info-value"><span class="status status-active">В пути</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Калькулятор -->
+                <section id="calculator-section" class="content-section hidden">
+                    <h2 class="section-title">Калькулятор стоимости</h2>
+                    
+                    <div class="calculator-grid">
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-calculator"></i> Параметры расчета</h3>
+                            <div class="form-group">
+                                <label class="form-label">Расстояние (км)</label>
+                                <input type="range" class="form-control" id="distance" min="1" max="100" value="15">
+                                <div class="info-value" id="distance-value">15 км</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Тип автомобиля</label>
+                                <select class="form-control" id="car-type">
+                                    <option value="light">Легковой автомобиль</option>
+                                    <option value="suv">Внедорожник</option>
+                                    <option value="minivan">Минивэн</option>
+                                    <option value="commercial">Коммерческий транспорт</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Срочность</label>
+                                <select class="form-control" id="urgency">
+                                    <option value="normal">Обычная (15-30 мин)</option>
+                                    <option value="urgent">Срочная (5-15 мин)</option>
+                                    <option value="emergency">Экстренная (до 5 мин)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Дополнительные услуги</label>
+                                <div>
+                                    <label><input type="checkbox" id="night-service"> Ночной вызов (+20%)</label><br>
+                                    <label><input type="checkbox" id="tech-help"> Техническая помощь на месте</label><br>
+                                    <label><input type="checkbox" id="waiting"> Ожидание водителя</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="calculator-result">
+                            <h3>Примерная стоимость</h3>
+                            <div class="calculator-price" id="calculated-price">2 500 ₽</div>
+                            <p>Итоговая стоимость может отличаться</p>
+                            <button class="btn btn-secondary" style="background: white; color: #1a2a6c; margin-top: 20px;">
+                                <i class="fas fa-truck-pickup"></i> Вызвать эвакуатор
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Остальные разделы (история, профиль, автомобиль, поддержка) -->
+                <!-- Код этих разделов аналогичен предыдущей версии -->
                 <section id="trips-section" class="content-section hidden">
                     <h2 class="section-title">История поездок</h2>
-                    
                     <div class="card">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Дата</th>
-                                    <th>Маршрут</th>
-                                    <th>Расстояние</th>
-                                    <th>Стоимость</th>
-                                    <th>Статус</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>15.05.2023</td>
-                                    <td>ул. Ленина → СТО "Автодоктор"</td>
-                                    <td>15 км</td>
-                                    <td>2 500 руб.</td>
-                                    <td><span class="status status-completed">Завершена</span></td>
-                                </tr>
-                                <tr>
-                                    <td>03.04.2023</td>
-                                    <td>ТРЦ "Галерея" → Дом</td>
-                                    <td>8 км</td>
-                                    <td>1 800 руб.</td>
-                                    <td><span class="status status-completed">Завершена</span></td>
-                                </tr>
-                                <tr>
-                                    <td>12.03.2023</td>
-                                    <td>Загородное шоссе → Автосервис №1</td>
-                                    <td>22 км</td>
-                                    <td>3 200 руб.</td>
-                                    <td><span class="status status-completed">Завершена</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <p>Для просмотра истории войдите в систему.</p>
                     </div>
                 </section>
                 
-                <!-- Мои данные -->
                 <section id="profile-section" class="content-section hidden">
                     <h2 class="section-title">Мои данные</h2>
-                    
                     <div class="card">
-                        <h3 class="card-title"><i class="fas fa-user-circle"></i> Личная информация</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">ФИО</div>
-                                <div class="info-value">Иван Иванович Иванов</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Телефон</div>
-                                <div class="info-value">+7 (912) 345-67-89</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Email</div>
-                                <div class="info-value">ivanov@example.com</div>
-                            </div>
-                        </div>
+                        <p>Для просмотра данных войдите в систему.</p>
                     </div>
                 </section>
                 
-                <!-- Мой автомобиль -->
                 <section id="car-section" class="content-section hidden">
                     <h2 class="section-title">Мой автомобиль</h2>
-                    
                     <div class="card">
-                        <h3 class="card-title"><i class="fas fa-car"></i> Основная информация</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">Марка</div>
-                                <div class="info-value">Toyota</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Модель</div>
-                                <div class="info-value">Camry</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Год выпуска</div>
-                                <div class="info-value">2018</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Госномер</div>
-                                <div class="info-value">А123БВ777</div>
-                            </div>
-                        </div>
+                        <p>Для просмотра данных об автомобиле войдите в систему.</p>
                     </div>
                 </section>
                 
-                <!-- Поддержка -->
                 <section id="support-section" class="content-section hidden">
-                    <h2 class="section-title">Служба поддержки</h2>
-                    
+                    <h2 class="section-title">Поддержка</h2>
                     <div class="card">
-                        <h3 class="card-title"><i class="fas fa-phone-alt"></i> Контакты</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">Телефон поддержки</div>
-                                <div class="info-value">+7 (800) 123-45-67</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Email поддержки</div>
-                                <div class="info-value">support@evacuator.ru</div>
-                            </div>
-                        </div>
+                        <p>Для обращения в поддержку войдите в систему.</p>
                     </div>
                 </section>
             </div>
         </div>
     </div>
 
+    <!-- Модальные окна -->
+    <div id="login-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-content" style="background: white; padding: 30px; border-radius: 15px; width: 400px; max-width: 90%;">
+            <h2 style="margin-bottom: 20px; color: #1a2a6c;">Вход в систему</h2>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="login-email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="login-password">
+            </div>
+            <button class="btn btn-primary" id="do-login" style="width: 100%; margin-bottom: 15px;">Войти</button>
+            <button class="btn btn-secondary" id="close-login" style="width: 100%;">Отмена</button>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-content" style="background: white; padding: 30px; border-radius: 15px; width: 400px; max-width: 90%;">
+            <h2 style="margin-bottom: 20px; color: #1a2a6c;">Регистрация</h2>
+            <div class="form-group">
+                <label class="form-label">Имя</label>
+                <input type="text" class="form-control" id="reg-name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="reg-email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Телефон</label>
+                <input type="tel" class="form-control" id="reg-phone">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="reg-password">
+            </div>
+            <button class="btn btn-primary" id="do-register" style="width: 100%; margin-bottom: 15px;">Зарегистрироваться</button>
+            <button class="btn btn-secondary" id="close-register" style="width: 100%;">Отмена</button>
+        </div>
+    </div>
+
     <script>
+        // Система аутентификации
+        let currentUser = null;
+        let evacuationActive = false;
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Навигация по разделам
             const navLinks = document.querySelectorAll('.nav-link');
             const contentSections = document.querySelectorAll('.content-section');
             
@@ -547,7 +860,224 @@
                     document.getElementById(sectionId).classList.remove('hidden');
                 });
             });
+
+            // Модальные окна
+            document.getElementById('login-btn').addEventListener('click', function() {
+                document.getElementById('login-modal').classList.remove('hidden');
+            });
+
+            document.getElementById('register-btn').addEventListener('click', function() {
+                document.getElementById('register-modal').classList.remove('hidden');
+            });
+
+            document.getElementById('close-login').addEventListener('click', function() {
+                document.getElementById('login-modal').classList.add('hidden');
+            });
+
+            document.getElementById('close-register').addEventListener('click', function() {
+                document.getElementById('register-modal').classList.add('hidden');
+            });
+
+            // Вход в систему
+            document.getElementById('do-login').addEventListener('click', function() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                if (email && password) {
+                    loginUser(email);
+                } else {
+                    alert('Заполните все поля');
+                }
+            });
+
+            // Регистрация
+            document.getElementById('do-register').addEventListener('click', function() {
+                const name = document.getElementById('reg-name').value;
+                const email = document.getElementById('reg-email').value;
+                const phone = document.getElementById('reg-phone').value;
+                const password = document.getElementById('reg-password').value;
+                
+                if (name && email && phone && password) {
+                    registerUser(name, email, phone);
+                } else {
+                    alert('Заполните все поля');
+                }
+            });
+
+            // Калькулятор
+            document.getElementById('distance').addEventListener('input', function() {
+                document.getElementById('distance-value').textContent = this.value + ' км';
+                calculatePrice();
+            });
+
+            document.getElementById('car-type').addEventListener('change', calculatePrice);
+            document.getElementById('urgency').addEventListener('change', calculatePrice);
+            document.getElementById('night-service').addEventListener('change', calculatePrice);
+            document.getElementById('tech-help').addEventListener('change', calculatePrice);
+            document.getElementById('waiting').addEventListener('change', calculatePrice);
+
+            // Вызов эвакуатора
+            document.getElementById('call-evacuator').addEventListener('click', function() {
+                evacuationActive = true;
+                document.getElementById('evacuation-form').classList.add('hidden');
+                document.getElementById('evacuation-active').classList.remove('hidden');
+                
+                // Имитация обновления статуса
+                simulateEvacuationStatus();
+            });
+
+            // Автоматическое обновление данных
+            setInterval(updateLiveData, 30000); // Каждые 30 секунд
         });
+
+        function loginUser(email) {
+            // Имитация входа
+            currentUser = {
+                name: "Иван Иванов",
+                email: email,
+                phone: "+7 (912) 345-67-89",
+                joinDate: "2022"
+            };
+            
+            updateUIForUser();
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function registerUser(name, email, phone) {
+            // Имитация регистрации
+            currentUser = {
+                name: name,
+                email: email,
+                phone: phone,
+                joinDate: new Date().getFullYear().toString()
+            };
+            
+            updateUIForUser();
+            document.getElementById('register-modal').classList.add('hidden');
+        }
+
+        function updateUIForUser() {
+            // Показываем информацию пользователя
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('user-section').classList.remove('hidden');
+            
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('user-avatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('');
+            document.getElementById('user-status').textContent = `Клиент с ${currentUser.joinDate} года`;
+            
+            // Показываем контент для авторизованных пользователей
+            document.getElementById('guest-message').classList.add('hidden');
+            document.getElementById('user-dashboard').classList.remove('hidden');
+            document.getElementById('evacuation-guest').classList.add('hidden');
+            document.getElementById('evacuation-form').classList.remove('hidden');
+            
+            // Обновляем разделы
+            updateTripsHistory();
+            updateProfileData();
+            updateCarData();
+        }
+
+        function calculatePrice() {
+            const distance = parseInt(document.getElementById('distance').value);
+            const carType = document.getElementById('car-type').value;
+            const urgency = document.getElementById('urgency').value;
+            
+            let basePrice = distance * 100;
+            
+            // Наценки за тип автомобиля
+            const carMultipliers = {
+                'light': 1,
+                'suv': 1.3,
+                'minivan': 1.5,
+                'commercial': 2
+            };
+            
+            // Наценки за срочность
+            const urgencyMultipliers = {
+                'normal': 1,
+                'urgent': 1.5,
+                'emergency': 2
+            };
+            
+            basePrice *= carMultipliers[carType];
+            basePrice *= urgencyMultipliers[urgency];
+            
+            // Дополнительные услуги
+            if (document.getElementById('night-service').checked) {
+                basePrice *= 1.2;
+            }
+            if (document.getElementById('tech-help').checked) {
+                basePrice += 500;
+            }
+            if (document.getElementById('waiting').checked) {
+                basePrice += 300;
+            }
+            
+            document.getElementById('calculated-price').textContent = Math.round(basePrice) + ' ₽';
+            document.getElementById('evac-price').textContent = Math.round(basePrice) + ' руб.';
+        }
+
+        function simulateEvacuationStatus() {
+            let timeLeft = 15;
+            const timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    document.querySelector('#evacuation-active .info-grid .info-item:nth-child(3) .info-value').textContent = 
+                        timeLeft + ' минут';
+                    timeLeft--;
+                } else {
+                    clearInterval(timer);
+                    document.querySelector('#evacuation-active .info-grid .info-item:nth-child(4) .info-value').innerHTML = 
+                        '<span class="status status-completed">Завершена</span>';
+                    
+                    // Добавляем поездку в историю
+                    addNewTrip();
+                }
+            }, 60000); // Обновление каждую минуту
+        }
+
+        function addNewTrip() {
+            // Имитация добавления новой поездки
+            const trips = parseInt(document.getElementById('total-trips').textContent);
+            document.getElementById('total-trips').textContent = trips + 1;
+            
+            const distance = parseInt(document.getElementById('total-distance').textContent);
+            const newDistance = distance + parseInt(document.getElementById('distance').value);
+            document.getElementById('total-distance').textContent = newDistance + ' км';
+        }
+
+        function updateLiveData() {
+            // Имитация обновления данных в реальном времени
+            if (currentUser) {
+                // Обновляем рейтинг (небольшие случайные изменения)
+                const rating = parseFloat(document.getElementById('user-rating').textContent);
+                const newRating = (rating + (Math.random() * 0.1 - 0.05)).toFixed(1);
+                document.getElementById('user-rating').textContent = Math.max(4.0, Math.min(5.0, newRating));
+                
+                // Обновляем время прибытия эвакуатора
+                if (evacuationActive) {
+                    const timeElement = document.querySelector('#evacuation-active .info-grid .info-item:nth-child(3) .info-value');
+                    let timeLeft = parseInt(timeElement.textContent);
+                    if (timeLeft > 1) {
+                        timeElement.textContent = (timeLeft - 1) + ' минут';
+                    }
+                }
+            }
+        }
+
+        function updateTripsHistory() {
+            // Заглушка для обновления истории поездок
+        }
+
+        function updateProfileData() {
+            // Заглушка для обновления профиля
+        }
+
+        function updateCarData() {
+            // Заглушка для обновления данных об автомобиле
+        }
+
+        // Инициализация калькулятора
+        calculatePrice();
     </script>
 </body>
 </html>
