@@ -59,9 +59,6 @@
             color: white;
             font-size: 1.2rem;
             font-weight: bold;
-            background-image: url('https://evakurator.ru/logo.png');
-            background-size: cover;
-            background-position: center;
         }
         
         .logo-text h1 {
@@ -354,66 +351,6 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
         
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        .calculator-result {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-        }
-        
-        .calculator-result h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-        }
-        
-        .calculator-price {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        
-        .evacuation-map {
-            width: 100%;
-            height: 300px;
-            background: #ecf0f1;
-            border-radius: 10px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #7f8c8d;
-        }
-        
-        .driver-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .driver-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #e67e22, #d35400);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        
         .hidden {
             display: none !important;
         }
@@ -484,88 +421,12 @@
             color: #2c3e50;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        th {
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        .status {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status-completed {
-            background-color: #d5f4e6;
-            color: #27ae60;
-        }
-        
-        .status-pending {
-            background-color: #fdebd0;
-            color: #e67e22;
-        }
-        
-        .status-active {
-            background-color: #d6eaf8;
-            color: #3498db;
-        }
-        
-        .rating-stars {
-            display: flex;
-            gap: 5px;
-            margin: 10px 0;
-        }
-        
-        .star {
-            color: #f1c40f;
-            cursor: pointer;
-        }
-        
-        .review-item {
-            padding: 15px;
-            border: 1px solid #ecf0f1;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .review-author {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .review-date {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
             }
             
             .stats-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .calculator-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -665,18 +526,6 @@
                             <span>Мой автомобиль</span>
                         </a>
                     </li>
-                    <li class="nav-item driver-only hidden">
-                        <a href="#" class="nav-link" data-section="driver">
-                            <i class="fas fa-id-card"></i>
-                            <span>Водительский профиль</span>
-                        </a>
-                    </li>
-                    <li class="nav-item driver-only hidden">
-                        <a href="#" class="nav-link" data-section="reviews">
-                            <i class="fas fa-star"></i>
-                            <span>Отзывы клиентов</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
             
@@ -692,17 +541,17 @@
                     
                     <div id="user-dashboard" class="hidden">
                         <div class="stats-cards">
-                            <div class="stat-card" id="stat-card-1">
+                            <div class="stat-card">
                                 <i class="fas fa-car-crash"></i>
                                 <h3 id="total-trips">0</h3>
                                 <p>Всего поездок</p>
                             </div>
-                            <div class="stat-card" id="stat-card-2">
+                            <div class="stat-card">
                                 <i class="fas fa-road"></i>
                                 <h3 id="total-distance">0 км</h3>
                                 <p>Общий пробег</p>
                             </div>
-                            <div class="stat-card" id="stat-card-3">
+                            <div class="stat-card">
                                 <i class="fas fa-star"></i>
                                 <h3 id="user-rating">5.0</h3>
                                 <p>Ваш рейтинг</p>
@@ -735,13 +584,44 @@
                     </div>
                     
                     <div id="evacuation-form" class="hidden">
-                        <!-- Форма вызова эвакуатора -->
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-truck-pickup"></i> Форма вызова эвакуатора</h3>
+                            <p>Эта функция будет доступна после входа в систему.</p>
+                        </div>
                     </div>
                 </section>
-                
-                <!-- Другие разделы остаются без изменений -->
-                <!-- ... -->
 
+                <!-- Калькулятор -->
+                <section id="calculator-section" class="content-section hidden">
+                    <h2 class="section-title">Калькулятор стоимости</h2>
+                    <div class="card">
+                        <p>Калькулятор будет доступен после входа в систему.</p>
+                    </div>
+                </section>
+
+                <!-- История поездок -->
+                <section id="trips-section" class="content-section hidden">
+                    <h2 class="section-title">История поездок</h2>
+                    <div class="card">
+                        <p>История поездок будет доступна после входа в систему.</p>
+                    </div>
+                </section>
+
+                <!-- Мои данные -->
+                <section id="profile-section" class="content-section hidden">
+                    <h2 class="section-title">Мои данные</h2>
+                    <div class="card">
+                        <p>Ваши данные будут отображены здесь после входа в систему.</p>
+                    </div>
+                </section>
+
+                <!-- Мой автомобиль -->
+                <section id="car-section" class="content-section hidden">
+                    <h2 class="section-title">Мой автомобиль</h2>
+                    <div class="card">
+                        <p>Информация об автомобиле будет доступна после входа в систему.</p>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
@@ -832,8 +712,11 @@
         let currentUserRole = 'client';
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Слушатель изменения состояния авторизации
+            console.log('Приложение загружено');
+
+            // Инициализация слушателя авторизации
             auth.onAuthStateChanged((user) => {
+                console.log('Состояние авторизации:', user);
                 if (user) {
                     currentUser = user;
                     loadUserData(user.uid);
@@ -843,11 +726,68 @@
                 }
             });
 
-            // Переключение вкладок регистрации/входа
+            // === ОБРАБОТЧИКИ КНОПОК ===
+
+            // Кнопки открытия модальных окон
+            document.getElementById('login-btn').addEventListener('click', function() {
+                console.log('Кнопка Входа нажата');
+                document.getElementById('login-modal').classList.remove('hidden');
+            });
+
+            document.getElementById('register-btn').addEventListener('click', function() {
+                console.log('Кнопка Регистрации нажата');
+                document.getElementById('register-modal').classList.remove('hidden');
+            });
+
+            // Кнопка выхода
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                auth.signOut();
+            });
+
+            // === ОБРАБОТЧИКИ МОДАЛЬНЫХ ОКОН ===
+
+            // Закрытие модальных окон
+            document.getElementById('close-login').addEventListener('click', function() {
+                document.getElementById('login-modal').classList.add('hidden');
+            });
+
+            document.getElementById('close-register').addEventListener('click', function() {
+                document.getElementById('register-modal').classList.add('hidden');
+            });
+
+            document.getElementById('cancel-login').addEventListener('click', function() {
+                document.getElementById('login-modal').classList.add('hidden');
+            });
+
+            document.getElementById('cancel-register').addEventListener('click', function() {
+                document.getElementById('register-modal').classList.add('hidden');
+            });
+
+            // Закрытие по клику вне окна
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+
+            // === ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ===
+
+            // Вкладки в модальных окнах
             document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    console.log('Вкладка нажата:', this.dataset.role);
+                    
+                    // Убираем активный класс у всех вкладок
+                    document.querySelectorAll('.auth-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Добавляем активный класс текущей вкладке
                     this.classList.add('active');
+                    
+                    // Обновляем текущую роль
                     currentUserRole = this.dataset.role;
                     
                     // Показываем/скрываем дополнительные поля для водителей
@@ -860,12 +800,92 @@
                 });
             });
 
-            // Остальной код навигации и обработчиков...
+            // === НАВИГАЦИЯ ПО РАЗДЕЛАМ ===
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Навигация:', this.dataset.section);
+                    
+                    // Убираем активный класс у всех ссылок
+                    navLinks.forEach(item => item.classList.remove('active'));
+                    
+                    // Добавляем активный класс текущей ссылке
+                    this.classList.add('active');
+                    
+                    // Скрываем все разделы
+                    contentSections.forEach(section => section.classList.add('hidden'));
+                    
+                    // Показываем выбранный раздел
+                    const sectionId = this.getAttribute('data-section') + '-section';
+                    const targetSection = document.getElementById(sectionId);
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // === ФОРМЫ ===
+
+            // Вход в систему
+            document.getElementById('do-login').addEventListener('click', async function() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                if (email && password) {
+                    await loginUser(email, password);
+                } else {
+                    alert('Заполните все поля');
+                }
+            });
+
+            // Регистрация
+            document.getElementById('do-register').addEventListener('click', async function() {
+                const name = document.getElementById('reg-name').value;
+                const email = document.getElementById('reg-email').value;
+                const phone = document.getElementById('reg-phone').value;
+                const password = document.getElementById('reg-password').value;
+                
+                if (name && email && phone && password) {
+                    if (password.length < 6) {
+                        alert('Пароль должен содержать минимум 6 символов');
+                        return;
+                    }
+                    await registerUser(name, email, phone, password);
+                } else {
+                    alert('Заполните все поля');
+                }
+            });
+
+            // Восстановление пароля
+            document.getElementById('forgot-password').addEventListener('click', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                
+                if (!email) {
+                    alert('Введите ваш email для восстановления пароля');
+                    return;
+                }
+                
+                try {
+                    await auth.sendPasswordResetEmail(email);
+                    alert('Письмо для восстановления пароля отправлено на ' + email);
+                } catch (error) {
+                    alert('Ошибка: ' + error.message);
+                }
+            });
         });
 
-        // Регистрация пользователя с учетом роли
+        // === FIREBASE ФУНКЦИИ ===
+
+        // Регистрация пользователя
         async function registerUser(name, email, phone, password) {
             try {
+                console.log('Регистрация пользователя:', { name, email, role: currentUserRole });
+
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
@@ -904,11 +924,64 @@
 
             } catch (error) {
                 console.error('Ошибка регистрации:', error);
-                // Обработка ошибок...
+                let errorMessage = 'Ошибка регистрации: ';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'Этот email уже используется';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Пароль слишком слабый (минимум 6 символов)';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
             }
         }
 
-        // Загрузка данных пользователя с учетом роли
+        // Вход пользователя
+        async function loginUser(email, password) {
+            try {
+                console.log('Вход пользователя:', email);
+                await auth.signInWithEmailAndPassword(email, password);
+                document.getElementById('login-modal').classList.add('hidden');
+                
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+                
+                showNotification('Вход выполнен успешно!', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                let errorMessage = 'Ошибка входа: ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'Пользователь с таким email не найден. Зарегистрируйтесь.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Неверный пароль. Попробуйте снова.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Неверный формат email';
+                        break;
+                    case 'auth/invalid-login-credentials':
+                        errorMessage += 'Неверные учетные данные. Проверьте email и пароль.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
+            }
+        }
+
+        // Загрузка данных пользователя
         async function loadUserData(userId) {
             try {
                 const userDoc = await db.collection('users').doc(userId).get();
@@ -919,31 +992,28 @@
                     currentUserRole = userData.role || 'client';
                     
                     updateUIForUser(userData);
-                    
-                    // Показываем/скрываем разделы для водителей
-                    document.querySelectorAll('.driver-only').forEach(el => {
-                        if (currentUserRole === 'driver') {
-                            el.classList.remove('hidden');
-                        } else {
-                            el.classList.add('hidden');
-                        }
-                    });
-                    
-                    // Обновляем статистику в зависимости от роли
-                    updateStatsForRole(userData);
+                    showNotification('Добро пожаловать, ' + userData.name + '!', 'success');
                 }
             } catch (error) {
                 console.error('Ошибка загрузки данных:', error);
             }
         }
 
+        // Показать гостевой вид
+        function showGuestView() {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('user-section').classList.add('hidden');
+            document.getElementById('guest-message').classList.remove('hidden');
+            document.getElementById('user-dashboard').classList.add('hidden');
+            document.getElementById('evacuation-guest').classList.remove('hidden');
+            document.getElementById('evacuation-form').classList.add('hidden');
+        }
+
         // Обновление интерфейса для авторизованного пользователя
         function updateUIForUser(userData) {
-            // Скрываем кнопки входа/регистрации
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('user-section').classList.remove('hidden');
             
-            // Обновляем данные пользователя
             document.getElementById('user-name').textContent = userData.name;
             document.getElementById('user-avatar').textContent = userData.name.split(' ').map(n => n[0]).join('');
             
@@ -966,54 +1036,22 @@
             document.getElementById('evacuation-form').classList.remove('hidden');
         }
 
-        // Обновление статистики в зависимости от роли
-        function updateStatsForRole(userData) {
-            const statCards = document.querySelectorAll('.stat-card');
+        // Показать уведомление
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <div>${message}</div>
+            `;
             
-            if (userData.role === 'driver') {
-                // Статистика для водителя
-                statCards[0].innerHTML = `
-                    <i class="fas fa-car-crash"></i>
-                    <h3>${userData.totalTrips || 0}</h3>
-                    <p>Выполнено поездок</p>
-                `;
-                statCards[1].innerHTML = `
-                    <i class="fas fa-star"></i>
-                    <h3>${userData.rating || '5.0'}</h3>
-                    <p>Рейтинг</p>
-                `;
-                statCards[2].innerHTML = `
-                    <i class="fas fa-calendar-check"></i>
-                    <h3>${userData.isAvailable ? 'Доступен' : 'Занят'}</h3>
-                    <p>Статус</p>
-                `;
-                
-                // Добавляем класс для стилизации карточек водителя
-                statCards.forEach(card => card.classList.add('driver'));
-            } else {
-                // Статистика для клиента
-                statCards[0].innerHTML = `
-                    <i class="fas fa-car-crash"></i>
-                    <h3>${userData.totalTrips || 0}</h3>
-                    <p>Всего поездок</p>
-                `;
-                statCards[1].innerHTML = `
-                    <i class="fas fa-road"></i>
-                    <h3>${userData.totalDistance || '0'} км</h3>
-                    <p>Общий пробег</p>
-                `;
-                statCards[2].innerHTML = `
-                    <i class="fas fa-star"></i>
-                    <h3>${userData.rating || '5.0'}</h3>
-                    <p>Ваш рейтинг</p>
-                `;
-                
-                // Убираем класс водителя
-                statCards.forEach(card => card.classList.remove('driver'));
-            }
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(notification, mainContent.firstChild);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
         }
-
-        // Остальные функции остаются аналогичными, но с учетом ролей...
     </script>
 </body>
 </html>
