@@ -285,6 +285,12 @@
             border-left: 4px solid var(--accent);
         }
         
+        .notification-info {
+            background: #d6eaf8;
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+        
         .call-evac-btn {
             background: linear-gradient(135deg, var(--accent), #c0392b);
             color: white;
@@ -329,6 +335,10 @@
             text-align: center;
             font-size: 1.2rem;
             font-weight: bold;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
         }
         
         @media (max-width: 768px) {
@@ -658,6 +668,9 @@
                     <!-- Раздел: История поездок -->
                     <section id="trips-section" class="content-section hidden">
                         <h2 class="mb-4">История поездок</h2>
+                        <button class="btn btn-warning btn-sm mb-3" id="add-test-trip-btn">
+                            <i class="fas fa-vial"></i> Добавить тестовую поездку
+                        </button>
                         <div class="card">
                             <div class="card-body">
                                 <div id="trips-list">
@@ -777,17 +790,40 @@
         });
 
         async function initializeApp() {
-            // Инициализация слушателя состояния аутентификации
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    await loadUserData(user.uid);
-                    showDashboard();
-                } else {
-                    showAuth();
-                }
-            });
+            try {
+                // Проверяем подключение к Firebase
+                await checkFirebaseConnection();
+                
+                // Инициализация слушателя состояния аутентификации
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log('Пользователь авторизован:', user.uid);
+                        await loadUserData(user.uid);
+                        showDashboard();
+                    } else {
+                        console.log('Пользователь не авторизован');
+                        showAuth();
+                    }
+                });
 
-            setupEventListeners();
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error('Ошибка инициализации приложения:', error);
+                showNotification('Ошибка загрузки приложения', 'error');
+            }
+        }
+
+        async function checkFirebaseConnection() {
+            try {
+                const testDoc = await db.collection('test').doc('connection').get();
+                console.log('Firebase подключен успешно');
+                return true;
+            } catch (error) {
+                console.error('Ошибка подключения к Firebase:', error);
+                showNotification('Ошибка подключения к базе данных', 'error');
+                return false;
+            }
         }
 
         function setupEventListeners() {
@@ -838,6 +874,9 @@
             // Формы профиля
             document.getElementById('profile-form').addEventListener('submit', saveProfile);
             document.getElementById('car-form').addEventListener('submit', saveCarInfo);
+            
+            // Тестовая поездка
+            document.getElementById('add-test-trip-btn').addEventListener('click', createTestTrip);
         }
 
         function switchAuthMethod(method) {
@@ -1070,25 +1109,87 @@
 
         async function loadUserTrips() {
             try {
+                console.log('Загрузка поездок для пользователя:', currentUser.uid);
+                
                 const tripsSnapshot = await db.collection('trips')
                     .where('userId', '==', currentUser.uid)
                     .orderBy('createdAt', 'desc')
-                    .limit(5)
                     .get();
                 
+                console.log('Найдено поездок:', tripsSnapshot.size);
+                
+                if (tripsSnapshot.empty) {
+                    updateTripsUI(tripsSnapshot);
+                    showNotification('У вас еще нет завершенных поездок', 'info');
+                    return;
+                }
+                
                 updateTripsUI(tripsSnapshot);
+                
             } catch (error) {
                 console.error('Ошибка загрузки поездок:', error);
+                
+                // Показываем детальную информацию об ошибке
+                if (error.code === 'failed-precondition') {
+                    showNotification('Необходимо создать индекс в Firebase Console', 'error');
+                } else {
+                    showNotification('Ошибка загрузки истории поездок: ' + error.message, 'error');
+                }
+                
+                // Показываем демо-данные для тестирования
+                showDemoTrips();
             }
+        }
+
+        // Функция для демо-данных (на время разработки)
+        function showDemoTrips() {
+            const demoData = [
+                {
+                    from: 'ул. Ленина, 15',
+                    to: 'СТО Автодоктор',
+                    price: 1500,
+                    status: 'completed',
+                    createdAt: new Date(Date.now() - 86400000) // вчера
+                },
+                {
+                    from: 'пр. Мира, 42',
+                    to: 'Домой',
+                    price: 1200,
+                    status: 'completed', 
+                    createdAt: new Date(Date.now() - 172800000) // 2 дня назад
+                },
+                {
+                    from: 'ш. Энтузиастов, 25',
+                    to: 'СТО Быстрый ремонт',
+                    price: 2000,
+                    status: 'completed',
+                    createdAt: new Date(Date.now() - 259200000) // 3 дня назад
+                }
+            ];
+            
+            updateTripsUIWithData(demoData);
         }
 
         function updateTripsUI(tripsSnapshot) {
             const recentTrips = document.getElementById('recent-trips');
             const tripsList = document.getElementById('trips-list');
             
-            if (tripsSnapshot.empty) {
-                recentTrips.innerHTML = '<p class="text-muted text-center py-3">У вас еще не было поездок</p>';
-                tripsList.innerHTML = '<p class="text-muted text-center py-4">У вас еще не было поездок</p>';
+            if (!tripsSnapshot || tripsSnapshot.empty) {
+                recentTrips.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">У вас еще не было поездок</p>
+                        <button class="btn btn-primary btn-sm" onclick="showEvacModal()">
+                            Вызвать первый эвакуатор
+                        </button>
+                    </div>
+                `;
+                tripsList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">История поездок пуста</p>
+                    </div>
+                `;
                 return;
             }
             
@@ -1097,17 +1198,31 @@
             
             tripsSnapshot.forEach((doc, index) => {
                 const trip = doc.data();
-                const tripDate = trip.createdAt ? new Date(trip.createdAt.toDate()).toLocaleDateString() : 'Дата не указана';
+                const tripDate = trip.createdAt ? 
+                    new Date(trip.createdAt.toDate()).toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 'Дата не указана';
                 
                 const tripItem = `
                     <div class="trip-item ${trip.status || 'completed'}">
-                        <div class="d-flex justify-content-between">
-                            <strong>${trip.from} → ${trip.to}</strong>
-                            <span class="text-success">${trip.price || 0} ₽</span>
-                        </div>
-                        <div class="d-flex justify-content-between text-muted">
-                            <small>${tripDate}</small>
-                            <small>${getStatusText(trip.status)}</small>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <strong>${trip.from} → ${trip.to}</strong>
+                                <div class="text-muted small mt-1">
+                                    <i class="fas fa-calendar"></i> ${tripDate}
+                                </div>
+                                ${trip.notes ? `<div class="text-muted small mt-1">${trip.notes}</div>` : ''}
+                            </div>
+                            <div class="text-end">
+                                <span class="text-success fw-bold">${trip.price || 0} ₽</span>
+                                <div class="badge bg-${getStatusBadgeColor(trip.status)} mt-1">
+                                    ${getStatusText(trip.status)}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1120,6 +1235,61 @@
             
             recentTrips.innerHTML = recentHtml;
             tripsList.innerHTML = fullHtml;
+        }
+
+        function updateTripsUIWithData(tripsData) {
+            const recentTrips = document.getElementById('recent-trips');
+            const tripsList = document.getElementById('trips-list');
+            
+            if (!tripsData || tripsData.length === 0) {
+                recentTrips.innerHTML = '<p class="text-muted text-center py-3">У вас еще не было поездок</p>';
+                tripsList.innerHTML = '<p class="text-muted text-center py-4">У вас еще не было поездок</p>';
+                return;
+            }
+            
+            let recentHtml = '';
+            let fullHtml = '';
+            
+            tripsData.forEach((trip, index) => {
+                const tripDate = trip.createdAt ? new Date(trip.createdAt).toLocaleDateString('ru-RU') : 'Дата не указана';
+                
+                const tripItem = `
+                    <div class="trip-item ${trip.status || 'completed'}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <strong>${trip.from} → ${trip.to}</strong>
+                                <div class="text-muted small mt-1">
+                                    <i class="fas fa-calendar"></i> ${tripDate}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-success fw-bold">${trip.price || 0} ₽</span>
+                                <div class="badge bg-${getStatusBadgeColor(trip.status)} mt-1">
+                                    ${getStatusText(trip.status)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (index < 3) {
+                    recentHtml += tripItem;
+                }
+                fullHtml += tripItem;
+            });
+            
+            recentTrips.innerHTML = recentHtml;
+            tripsList.innerHTML = fullHtml;
+        }
+
+        function getStatusBadgeColor(status) {
+            const colorMap = {
+                'completed': 'success',
+                'active': 'primary', 
+                'cancelled': 'danger',
+                'pending': 'warning'
+            };
+            return colorMap[status] || 'secondary';
         }
 
         function getStatusText(status) {
@@ -1256,6 +1426,45 @@
             }
         }
 
+        // Функция для создания тестовой поездки (для разработки)
+        async function createTestTrip() {
+            if (!currentUser) return;
+            
+            try {
+                const testTrip = {
+                    userId: currentUser.uid,
+                    from: 'Тестовый адрес отправления',
+                    to: 'Тестовый адрес назначения', 
+                    carType: 'passenger',
+                    price: Math.floor(Math.random() * 2000) + 500,
+                    status: 'completed',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    notes: 'Тестовая поездка'
+                };
+                
+                await db.collection('trips').add(testTrip);
+                
+                // Обновляем статистику
+                const newTotalTrips = (currentUser.totalTrips || 0) + 1;
+                await db.collection('users').doc(currentUser.uid).update({
+                    totalTrips: newTotalTrips,
+                    discount: calculateDiscount(newTotalTrips)
+                });
+                
+                currentUser.totalTrips = newTotalTrips;
+                currentUser.discount = calculateDiscount(newTotalTrips);
+                
+                updateUI();
+                loadUserTrips();
+                
+                showNotification('Тестовая поездка добавлена', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка создания тестовой поездки:', error);
+                showNotification('Ошибка создания тестовой поездки', 'error');
+            }
+        }
+
         async function calculateTripPrice(from, to, carType) {
             // Заглушка для расчета цены
             // В реальном приложении здесь будет интеграция с картами и расчет расстояния
@@ -1350,9 +1559,9 @@
         function showNotification(message, type) {
             const notificationArea = document.getElementById('notification-area');
             const notification = document.createElement('div');
-            notification.className = `notification notification-${type === 'success' ? 'success' : 'error'}`;
+            notification.className = `notification notification-${type === 'success' ? 'success' : type === 'error' ? 'error' : 'info'}`;
             notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
                 <div>${message}</div>
             `;
             
