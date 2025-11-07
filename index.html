@@ -365,6 +365,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         
+        // Конфигурация Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXT_KLY32LXphA6sTPJk8rVqV3geMKjXXgdeEKe4sNAFaQd-pMo5r47q-jBFFWEjWf/exec';
+        
         // Глобальные переменные
         let currentUser = null;
         let confirmationResult = null;
@@ -840,6 +843,78 @@
             document.getElementById('car-form').addEventListener('submit', saveCarInfo);
         }
 
+        // ==================== GOOGLE SHEETS ИНТЕГРАЦИЯ ====================
+
+        async function saveToGoogleSheets(data) {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                console.log('Data saved to Google Sheets:', result);
+                return result.success;
+                
+            } catch (error) {
+                console.error('Error saving to Google Sheets:', error);
+                return false;
+            }
+        }
+
+        async function saveRegistrationToSheets(userData, registrationMethod) {
+            const sheetData = {
+                type: 'registration',
+                userId: userData.uid,
+                name: userData.name,
+                phone: userData.phone,
+                email: userData.email,
+                carBrand: userData.carBrand,
+                carModel: userData.carModel,
+                registrationMethod: registrationMethod,
+                timestamp: new Date().toISOString()
+            };
+            
+            return await saveToGoogleSheets(sheetData);
+        }
+
+        async function saveEvacuationToSheets(tripData) {
+            const sheetData = {
+                type: 'evacuation',
+                userId: tripData.userId,
+                from: tripData.from,
+                to: tripData.to,
+                carType: tripData.carType,
+                price: tripData.price,
+                status: tripData.status,
+                notes: tripData.notes,
+                userPhone: currentUser.phone,
+                userName: currentUser.name,
+                timestamp: new Date().toISOString()
+            };
+            
+            return await saveToGoogleSheets(sheetData);
+        }
+
+        async function saveProfileUpdateToSheets(field, oldValue, newValue) {
+            const sheetData = {
+                type: 'profile_update',
+                userId: currentUser.uid,
+                field: field,
+                oldValue: oldValue,
+                newValue: newValue,
+                userName: currentUser.name,
+                userPhone: currentUser.phone,
+                userEmail: currentUser.email,
+                timestamp: new Date().toISOString()
+            };
+            
+            return await saveToGoogleSheets(sheetData);
+        }
+
         function switchAuthMethod(method) {
             document.querySelectorAll('[data-method]').forEach(tab => tab.classList.remove('active'));
             document.querySelector(`[data-method="${method}"]`).classList.add('active');
@@ -898,11 +973,6 @@
                 document.getElementById('phone-login').classList.add('hidden');
                 document.getElementById('verify-code').classList.remove('hidden');
                 
-                // Реальный код для Firebase:
-                // confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
-                // document.getElementById('phone-login').classList.add('hidden');
-                // document.getElementById('verify-code').classList.remove('hidden');
-                
             } catch (error) {
                 showNotification('Ошибка отправки SMS: ' + error.message, 'error');
             }
@@ -941,9 +1011,6 @@
                 } else {
                     showNotification('Неверный код', 'error');
                 }
-                
-                // Реальный код для Firebase:
-                // await confirmationResult.confirm(code);
                 
             } catch (error) {
                 showNotification('Ошибка подтверждения кода: ' + error.message, 'error');
@@ -985,13 +1052,25 @@
 
             try {
                 let userCredential;
+                let userData = {
+                    name: name,
+                    carBrand: carBrand,
+                    carModel: carModel,
+                    totalTrips: 0,
+                    discount: 0,
+                    rating: 5.0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
                 
                 if (method === 'phone') {
                     const phone = '+7' + document.getElementById('reg-phone').value.replace(/\D/g, '');
-                    // Для демо-режима создаем email на основе телефона
                     const email = phone.replace('+', '') + '@evakurator.com';
                     const password = '123456';
+                    
                     userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    userData.phone = phone;
+                    userData.email = email;
+                    
                 } else {
                     const email = document.getElementById('reg-email').value;
                     const password = document.getElementById('reg-password').value;
@@ -1008,18 +1087,23 @@
                     }
                     
                     userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    userData.email = email;
+                    userData.phone = phone;
                 }
 
-                await saveUserData(userCredential.user.uid, {
-                    name: name,
-                    phone: method === 'phone' ? '+7' + document.getElementById('reg-phone').value.replace(/\D/g, '') : document.getElementById('reg-phone-extra').value,
-                    carBrand: carBrand,
-                    carModel: carModel,
-                    totalTrips: 0,
-                    discount: 0,
-                    rating: 5.0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                await saveUserData(userCredential.user.uid, userData);
+                
+                // Сохраняем в Google Sheets
+                const sheetsSuccess = await saveRegistrationToSheets(
+                    { ...userData, uid: userCredential.user.uid }, 
+                    method
+                );
+                
+                if (sheetsSuccess) {
+                    console.log('Registration data saved to Google Sheets');
+                } else {
+                    console.warn('Failed to save registration data to Google Sheets');
+                }
 
                 showNotification('Регистрация прошла успешно!', 'success');
                 
@@ -1152,12 +1236,28 @@
             const phone = document.getElementById('profile-phone').value;
             const email = document.getElementById('profile-email').value;
             
+            // Сохраняем старые значения для логирования изменений
+            const oldName = currentUser.name;
+            const oldPhone = currentUser.phone;
+            const oldEmail = currentUser.email;
+            
             try {
                 await db.collection('users').doc(currentUser.uid).update({
                     name: name,
                     phone: phone,
                     email: email
                 });
+                
+                // Логируем изменения в Google Sheets
+                if (name !== oldName) {
+                    await saveProfileUpdateToSheets('name', oldName, name);
+                }
+                if (phone !== oldPhone) {
+                    await saveProfileUpdateToSheets('phone', oldPhone, phone);
+                }
+                if (email !== oldEmail) {
+                    await saveProfileUpdateToSheets('email', oldEmail, email);
+                }
                 
                 currentUser.name = name;
                 currentUser.phone = phone;
@@ -1178,6 +1278,12 @@
             const year = document.getElementById('car-year').value;
             const plate = document.getElementById('car-plate').value;
             
+            // Сохраняем старые значения
+            const oldBrand = currentUser.carBrand;
+            const oldModel = currentUser.carModel;
+            const oldYear = currentUser.carYear;
+            const oldPlate = currentUser.carPlate;
+            
             try {
                 await db.collection('users').doc(currentUser.uid).update({
                     carBrand: brand,
@@ -1185,6 +1291,20 @@
                     carYear: year,
                     carPlate: plate
                 });
+                
+                // Логируем изменения в Google Sheets
+                if (brand !== oldBrand) {
+                    await saveProfileUpdateToSheets('carBrand', oldBrand, brand);
+                }
+                if (model !== oldModel) {
+                    await saveProfileUpdateToSheets('carModel', oldModel, model);
+                }
+                if (year !== oldYear) {
+                    await saveProfileUpdateToSheets('carYear', oldYear, year);
+                }
+                if (plate !== oldPlate) {
+                    await saveProfileUpdateToSheets('carPlate', oldPlate, plate);
+                }
                 
                 currentUser.carBrand = brand;
                 currentUser.carModel = model;
@@ -1220,6 +1340,7 @@
             }
 
             try {
+                const price = await calculateTripPrice(from, to, carType);
                 const tripData = {
                     userId: currentUser.uid,
                     from: from,
@@ -1228,10 +1349,23 @@
                     notes: notes,
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    price: await calculateTripPrice(from, to, carType)
+                    price: price
                 };
                 
-                await db.collection('trips').add(tripData);
+                // Сохраняем в Firebase
+                const tripRef = await db.collection('trips').add(tripData);
+                
+                // Сохраняем в Google Sheets
+                const sheetsSuccess = await saveEvacuationToSheets({
+                    ...tripData,
+                    id: tripRef.id
+                });
+                
+                if (sheetsSuccess) {
+                    console.log('Evacuation data saved to Google Sheets');
+                } else {
+                    console.warn('Failed to save evacuation data to Google Sheets');
+                }
                 
                 // Обновляем статистику
                 const newTotalTrips = (currentUser.totalTrips || 0) + 1;
@@ -1258,7 +1392,6 @@
 
         async function calculateTripPrice(from, to, carType) {
             // Заглушка для расчета цены
-            // В реальном приложении здесь будет интеграция с картами и расчет расстояния
             const basePrice = 1000;
             const multipliers = {
                 'passenger': 1,
@@ -1287,9 +1420,8 @@
                 return;
             }
             
-            let basePrice = distance * 50; // Базовая цена 50 руб/км
+            let basePrice = distance * 50;
             
-            // Надбавки за тип автомобиля
             const carMultipliers = {
                 'passenger': 1,
                 'suv': 1.2,
@@ -1297,7 +1429,6 @@
                 'commercial': 1.5
             };
             
-            // Надбавки за срочность
             const urgencyMultipliers = {
                 'normal': 1,
                 'urgent': 1.2,
@@ -1307,7 +1438,6 @@
             basePrice *= carMultipliers[carType];
             basePrice *= urgencyMultipliers[urgency];
             
-            // Применяем скидку пользователя
             const discount = currentUser ? (currentUser.discount || 0) : 0;
             const finalPrice = Math.round(basePrice * (1 - discount / 100));
             
@@ -1322,14 +1452,10 @@
         }
 
         function switchSection(section) {
-            // Обновляем активную ссылку в навигации
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelector(`[data-section="${section}"]`).classList.add('active');
             
-            // Скрываем все разделы
             document.querySelectorAll('.content-section').forEach(section => section.classList.add('hidden'));
-            
-            // Показываем выбранный раздел
             document.getElementById(section + '-section').classList.remove('hidden');
         }
 
