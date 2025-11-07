@@ -770,38 +770,35 @@
         </div>
     </div>
 
-        <!-- Bootstrap JS -->
+    <!-- Кнопки для отладки -->
+    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 10000; display: flex; flex-direction: column; gap: 5px;">
+        <button onclick="testGoogleSheets()" style="background: #28a745; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
+            TEST GOOGLE SHEETS
+        </button>
+        <button onclick="location.reload()" style="background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
+            RELOAD PAGE
+        </button>
+        <button onclick="debugButtons()" style="background: #6c757d; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
+            DEBUG BUTTONS
+        </button>
+    </div>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Временно добавьте эту кнопку для тестирования -->
-    <button onclick="testGoogleSheets()" style="position: fixed; top: 10px; right: 10px; z-index: 10000; background: red; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
-        TEST GOOGLE SHEETS
-    </button>
-
-    <script>
-    async function testGoogleSheets() {
-        const testData = {
-            type: 'test',
-            message: 'Test from button',
-            timestamp: new Date().toISOString()
-        };
-        
-        const success = await saveToGoogleSheets(testData);
-        alert(success ? '✅ Test successful!' : '❌ Test failed - check console');
-    }
-    </script>
-
-</body>
-</html>
     <script>
         // Основной код приложения
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM loaded, initializing app...');
             initializeApp();
         });
 
         async function initializeApp() {
+            console.log('🔧 Initializing app...');
+            
             // Инициализация слушателя состояния аутентификации
             auth.onAuthStateChanged(async (user) => {
+                console.log('🔐 Auth state changed:', user);
                 if (user) {
                     await loadUserData(user.uid);
                     showDashboard();
@@ -811,12 +808,23 @@
             });
 
             setupEventListeners();
+            debugEventListeners();
         }
 
         function setupEventListeners() {
+            console.log('🔧 Setting up event listeners...');
+            
+            // Проверка кнопок авторизации
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            
+            console.log('Login button:', loginBtn);
+            console.log('Register button:', registerBtn);
+
             // Переключение методов входа
             document.querySelectorAll('[data-method]').forEach(tab => {
                 tab.addEventListener('click', function() {
+                    console.log('Auth method tab clicked:', this.dataset.method);
                     const method = this.dataset.method;
                     switchAuthMethod(method);
                 });
@@ -825,6 +833,7 @@
             // Переключение методов регистрации
             document.querySelectorAll('[data-reg-method]').forEach(tab => {
                 tab.addEventListener('click', function() {
+                    console.log('Registration method tab clicked:', this.dataset.regMethod);
                     const method = this.dataset.regMethod;
                     switchRegMethod(method);
                 });
@@ -846,6 +855,7 @@
             document.querySelectorAll('.nav-link[data-section]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
+                    console.log('Navigation clicked:', this.dataset.section);
                     switchSection(this.dataset.section);
                 });
             });
@@ -861,38 +871,59 @@
             // Формы профиля
             document.getElementById('profile-form').addEventListener('submit', saveProfile);
             document.getElementById('car-form').addEventListener('submit', saveCarInfo);
+
+            console.log('✅ Event listeners setup complete');
+        }
+
+        function debugEventListeners() {
+            console.log('🐛 Debugging event listeners...');
+            
+            // Проверяем все основные кнопки
+            const importantButtons = [
+                'login-btn', 'register-btn', 'send-sms-btn', 'email-login-btn',
+                'do-register', 'show-register', 'back-to-login', 'back-to-phone',
+                'verify-code-btn', 'call-evac-nav', 'call-evac-main', 'confirm-evac-btn',
+                'calculate-btn', 'logout-btn'
+            ];
+            
+            importantButtons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    console.log(`✅ Button ${btnId} found`);
+                } else {
+                    console.error(`❌ Button ${btnId} NOT FOUND`);
+                }
+            });
         }
 
         // ==================== GOOGLE SHEETS ИНТЕГРАЦИЯ ====================
 
-       async function saveToGoogleSheets(data) {
-    try {
-        console.log('📤 Sending to Google Sheets:', data);
-        
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        
-        console.log('📨 Response status:', response.status);
-        
-        const result = await response.json();
-        console.log('✅ Google Sheets response:', result);
-        
-        return result.success;
-        
-    } catch (error) {
-        console.error('❌ Error saving to Google Sheets:', error);
-        console.error('Error details:', {
-            message: error.message,
-            stack: error.stack
-        });
-        return false;
-    }
-}
+        async function saveToGoogleSheets(data) {
+            try {
+                console.log('📤 Sending to Google Sheets:', data);
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('📨 Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('✅ Google Sheets response:', result);
+                
+                return result.success;
+                
+            } catch (error) {
+                console.error('❌ Error saving to Google Sheets:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                return false;
             }
         }
 
@@ -946,6 +977,8 @@
             return await saveToGoogleSheets(sheetData);
         }
 
+        // ==================== ФУНКЦИИ АУТЕНТИФИКАЦИИ ====================
+
         function switchAuthMethod(method) {
             document.querySelectorAll('[data-method]').forEach(tab => tab.classList.remove('active'));
             document.querySelector(`[data-method="${method}"]`).classList.add('active');
@@ -998,8 +1031,6 @@
             }
 
             try {
-                // Для работы с телефонной аутентификацией нужна настройка в Firebase Console
-                // В демо-режиме используем заглушку
                 showNotification('Код отправлен на ваш телефон: 123456', 'success');
                 document.getElementById('phone-login').classList.add('hidden');
                 document.getElementById('verify-code').classList.remove('hidden');
@@ -1018,16 +1049,13 @@
             }
 
             try {
-                // Заглушка для демо-режима
                 if (code === '123456') {
-                    // Создаем тестового пользователя для демо
                     const email = 'demo@evakurator.com';
                     const password = '123456';
                     
                     try {
                         await auth.signInWithEmailAndPassword(email, password);
                     } catch (error) {
-                        // Если пользователя нет, создаем его
                         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                         await saveUserData(userCredential.user.uid, {
                             name: 'Демо Пользователь',
@@ -1173,7 +1201,6 @@
                 document.getElementById('user-discount').textContent = (currentUser.discount || 0) + '%';
                 document.getElementById('user-rating').textContent = (currentUser.rating || 5.0).toFixed(1);
                 
-                // Заполняем формы профиля
                 document.getElementById('profile-name').value = currentUser.name || '';
                 document.getElementById('profile-phone').value = currentUser.phone || '';
                 document.getElementById('profile-email').value = currentUser.email || '';
@@ -1267,7 +1294,6 @@
             const phone = document.getElementById('profile-phone').value;
             const email = document.getElementById('profile-email').value;
             
-            // Сохраняем старые значения для логирования изменений
             const oldName = currentUser.name;
             const oldPhone = currentUser.phone;
             const oldEmail = currentUser.email;
@@ -1279,7 +1305,6 @@
                     email: email
                 });
                 
-                // Логируем изменения в Google Sheets
                 if (name !== oldName) {
                     await saveProfileUpdateToSheets('name', oldName, name);
                 }
@@ -1309,7 +1334,6 @@
             const year = document.getElementById('car-year').value;
             const plate = document.getElementById('car-plate').value;
             
-            // Сохраняем старые значения
             const oldBrand = currentUser.carBrand;
             const oldModel = currentUser.carModel;
             const oldYear = currentUser.carYear;
@@ -1323,7 +1347,6 @@
                     carPlate: plate
                 });
                 
-                // Логируем изменения в Google Sheets
                 if (brand !== oldBrand) {
                     await saveProfileUpdateToSheets('carBrand', oldBrand, brand);
                 }
@@ -1383,10 +1406,8 @@
                     price: price
                 };
                 
-                // Сохраняем в Firebase
                 const tripRef = await db.collection('trips').add(tripData);
                 
-                // Сохраняем в Google Sheets
                 const sheetsSuccess = await saveEvacuationToSheets({
                     ...tripData,
                     id: tripRef.id
@@ -1398,7 +1419,6 @@
                     console.warn('Failed to save evacuation data to Google Sheets');
                 }
                 
-                // Обновляем статистику
                 const newTotalTrips = (currentUser.totalTrips || 0) + 1;
                 await db.collection('users').doc(currentUser.uid).update({
                     totalTrips: newTotalTrips,
@@ -1422,7 +1442,6 @@
         }
 
         async function calculateTripPrice(from, to, carType) {
-            // Заглушка для расчета цены
             const basePrice = 1000;
             const multipliers = {
                 'passenger': 1,
@@ -1518,6 +1537,39 @@
             setTimeout(() => {
                 notification.remove();
             }, 5000);
+        }
+
+        // ==================== ФУНКЦИИ ОТЛАДКИ ====================
+
+        async function testGoogleSheets() {
+            const testData = {
+                type: 'test',
+                message: 'Test from button',
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('🧪 Starting Google Sheets test...');
+            const success = await saveToGoogleSheets(testData);
+            
+            if (success) {
+                alert('✅ Test successful! Check browser console for details.');
+            } else {
+                alert('❌ Test failed! Check browser console (F12) for error details.');
+            }
+        }
+        
+        function debugButtons() {
+            console.log('🔍 Debugging buttons...');
+            const buttons = document.querySelectorAll('button');
+            console.log('Total buttons found:', buttons.length);
+            
+            buttons.forEach((btn, index) => {
+                console.log(`Button ${index}:`, {
+                    id: btn.id,
+                    text: btn.textContent,
+                    onclick: btn.onclick
+                });
+            });
         }
     </script>
 </body>
