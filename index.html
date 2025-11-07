@@ -845,23 +845,34 @@
 
         // ==================== GOOGLE SHEETS ИНТЕГРАЦИЯ ====================
 
-        async function saveToGoogleSheets(data) {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                console.log('Data saved to Google Sheets:', result);
-                return result.success;
-                
-            } catch (error) {
-                console.error('Error saving to Google Sheets:', error);
-                return false;
+       async function saveToGoogleSheets(data) {
+    try {
+        console.log('📤 Sending to Google Sheets:', data);
+        
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        console.log('📨 Response status:', response.status);
+        
+        const result = await response.json();
+        console.log('✅ Google Sheets response:', result);
+        
+        return result.success;
+        
+    } catch (error) {
+        console.error('❌ Error saving to Google Sheets:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+        });
+        return false;
+    }
+}
             }
         }
 
