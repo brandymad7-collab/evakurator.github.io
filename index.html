@@ -770,6 +770,9 @@
         </div>
     </div>
 
+        <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <!-- Кнопки для отладки -->
     <div style="position: fixed; bottom: 10px; right: 10px; z-index: 10000; display: flex; flex-direction: column; gap: 5px;">
         <button onclick="testGoogleSheets()" style="background: #28a745; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
@@ -781,11 +784,126 @@
         <button onclick="debugButtons()" style="background: #6c757d; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
             DEBUG BUTTONS
         </button>
+        <button onclick="checkGoogleScript()" style="background: #ffc107; color: black; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
+            CHECK SCRIPT URL
+        </button>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==================== ГЛОБАЛЬНЫЕ ФУНКЦИИ ОТЛАДКИ ====================
 
+        async function testGoogleSheets() {
+            console.log('🧪 Starting Google Sheets test...');
+            
+            const testData = {
+                type: 'test',
+                message: 'Test from button',
+                timestamp: new Date().toISOString(),
+                testId: Math.random().toString(36).substring(7)
+            };
+            
+            try {
+                console.log('📤 Sending test data to Google Sheets...');
+                
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxXT_KLY32LXphA6sTPJk8rVqV3geMKjXXgdeEKe4sNAFaQd-pMo5r47q-jBFFWEjWf/exec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                console.log('📨 Response status:', response.status);
+                console.log('📨 Response headers:', response.headers);
+                
+                const result = await response.json();
+                console.log('✅ Google Sheets response:', result);
+                
+                if (result.success) {
+                    alert('✅ Test successful! Data sent to Google Sheets.\nCheck browser console for details.');
+                } else {
+                    alert('❌ Google Sheets returned error: ' + (result.error || 'Unknown error'));
+                }
+                
+            } catch (error) {
+                console.error('❌ Error testing Google Sheets:', error);
+                alert('❌ Test failed! Error: ' + error.message + '\nCheck browser console (F12) for details.');
+            }
+        }
+        
+        function debugButtons() {
+            console.log('🔍 Debugging buttons...');
+            const buttons = document.querySelectorAll('button');
+            console.log('Total buttons found:', buttons.length);
+            
+            buttons.forEach((btn, index) => {
+                console.log(`Button ${index}:`, {
+                    id: btn.id,
+                    text: btn.textContent.trim(),
+                    onclick: btn.onclick,
+                    class: btn.className
+                });
+            });
+            
+            // Проверяем основные кнопки авторизации
+            const importantButtons = ['login-btn', 'register-btn', 'send-sms-btn', 'email-login-btn', 'do-register'];
+            importantButtons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    console.log(`✅ ${btnId}: FOUND - "${btn.textContent.trim()}"`);
+                } else {
+                    console.error(`❌ ${btnId}: NOT FOUND`);
+                }
+            });
+        }
+        
+        async function checkGoogleScript() {
+            console.log('🔗 Checking Google Script URL...');
+            
+            try {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxXT_KLY32LXphA6sTPJk8rVqV3geMKjXXgdeEKe4sNAFaQd-pMo5r47q-jBFFWEjWf/exec');
+                const result = await response.json();
+                console.log('✅ Google Script is accessible:', result);
+                alert('✅ Google Script is running!\nResponse: ' + JSON.stringify(result));
+            } catch (error) {
+                console.error('❌ Google Script check failed:', error);
+                alert('❌ Cannot access Google Script!\nError: ' + error.message);
+            }
+        }
+
+        // ==================== ОСНОВНОЙ КОД ПРИЛОЖЕНИЯ ====================
+
+        // Основной код приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM loaded, initializing app...');
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            console.log('🔧 Initializing app...');
+            
+            // Инициализация слушателя состояния аутентификации
+            auth.onAuthStateChanged(async (user) => {
+                console.log('🔐 Auth state changed:', user);
+                if (user) {
+                    await loadUserData(user.uid);
+                    showDashboard();
+                } else {
+                    showAuth();
+                }
+            });
+
+            setupEventListeners();
+            debugEventListeners();
+        }
+
+        // ... остальной ваш код остается без изменений ...
+        // ВСЕ функции из предыдущего кода (setupEventListeners, debugEventListeners, saveToGoogleSheets, и т.д.)
+        // должны оставаться на своих местах
+
+    </script>
+</body>
+</html>
     <script>
         // Основной код приложения
         document.addEventListener('DOMContentLoaded', function() {
