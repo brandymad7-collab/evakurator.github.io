@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evakurator - Сервис эвакуации</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #2c3e50, #3498db, #1abc9c);
@@ -12,62 +13,110 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .choice-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 40px;
+            padding: 50px;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            width: 100%;
         }
         .btn-choice {
             padding: 15px 30px;
             margin: 10px;
             font-size: 1.1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            width: 200px;
+        }
+        .btn-choice:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .text-purple {
+            color: #8e44ad;
+        }
+        .bg-purple {
+            background-color: #8e44ad;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="choice-card">
-                    <img src="https://static.tildacdn.com/tild3838-6165-4635-b732-353565656230/_2__.svg" alt="Evakurator" height="80" class="mb-4">
-                    <h1>Evakurator</h1>
-                    <p class="lead text-muted mb-4">Сервис эвакуации автомобилей</p>
-                    
-                    <div class="row mt-5">
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-user fa-3x text-primary mb-3"></i>
-                                    <h4>Клиент</h4>
-                                    <p class="text-muted">Вызов эвакуатора и управление заказами</p>
-                                    <a href="client.html" class="btn btn-primary btn-choice">
-                                        <i class="fas fa-sign-in-alt"></i> Войти как клиент
-                                    </a>
-                                </div>
+        <div class="choice-card">
+            <div class="text-center mb-5">
+                <img src="https://static.tildacdn.com/tild3838-6165-4635-b732-353565656230/_2__.svg" alt="Evakurator" height="100" class="mb-4">
+                <h1 class="display-4 fw-bold">Evakurator</h1>
+                <p class="lead text-muted mb-4">Сервис эвакуации автомобилей</p>
+            </div>
+            
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="fas fa-user fa-4x text-primary mb-3"></i>
+                                <h3>Клиент</h3>
+                                <p class="text-muted">Вызов эвакуатора и управление заказами</p>
                             </div>
+                            <a href="./client.html" class="btn btn-primary btn-lg btn-choice">
+                                <i class="fas fa-sign-in-alt me-2"></i> Войти как клиент
+                            </a>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-headset fa-3x text-purple mb-3"></i>
-                                    <h4>Диспетчер</h4>
-                                    <p class="text-muted">Управление заказами и водителями</p>
-                                    <a href="dispatcher.html" class="btn btn-purple btn-choice" style="background: #8e44ad; color: white;">
-                                        <i class="fas fa-sign-in-alt"></i> Войти как диспетчер
-                                    </a>
-                                </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <i class="fas fa-headset fa-4x text-purple mb-3"></i>
+                                <h3>Диспетчер</h3>
+                                <p class="text-muted">Управление заказами и водителями</p>
                             </div>
+                            <a href="./dispatcher.html" class="btn btn-purple btn-lg btn-choice" style="background: #8e44ad; color: white; border: none;">
+                                <i class="fas fa-sign-in-alt me-2"></i> Войти как диспетчер
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="mt-5 pt-4 border-top">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Для тестирования используйте демо-доступ: client@evakurator.ru / 123456
+                </small>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        // Добавляем немного интерактивности
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
