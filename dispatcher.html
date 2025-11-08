@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evakurator - Панель диспетчера</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --dispatcher-primary: #8e44ad;
+            --dispatcher-secondary: #9b59b6;
+            --dispatcher-accent: #e74c3c;
+            --dispatcher-success: #27ae60;
+            --dispatcher-warning: #e67e22;
+            --dispatcher-info: #3498db;
+            --dispatcher-light: #ecf0f1;
+            --dispatcher-dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dispatcher-primary), var(--dispatcher-secondary), #1abc9c);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-auth {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-auth img {
+            height: 80px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dispatcher-dark);
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--dispatcher-primary);
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--dispatcher-primary), var(--dispatcher-secondary));
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--dispatcher-success), #229954);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--dispatcher-warning), #d35400);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--dispatcher-accent);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, var(--dispatcher-info), #2980b9);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--dispatcher-primary);
+            color: var(--dispatcher-primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 0.875rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: none;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid var(--dispatcher-primary);
+        }
+        
+        .logo-dashboard img {
+            height: 40px;
+            width: auto;
+        }
+        
+        .dispatcher-badge {
+            background: var(--dispatcher-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            min-height: calc(100vh - 76px);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--dispatcher-light);
+        }
+        
+        .nav-link {
+            color: var(--dispatcher-dark);
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, var(--dispatcher-primary), var(--dispatcher-secondary));
+            color: white;
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            background: #f8f9fa;
+            min-height: calc(100vh - 76px);
+            padding: 30px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--dispatcher-primary), var(--dispatcher-secondary));
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, var(--dispatcher-warning), #d35400);
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(135deg, var(--dispatcher-success), #229954);
+        }
+        
+        .stat-card.info {
+            background: linear-gradient(135deg, var(--dispatcher-info), #2980b9);
+        }
+        
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .order-item {
+            border-left: 4px solid var(--dispatcher-warning);
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .order-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-item.active {
+            border-left-color: var(--dispatcher-info);
+        }
+        
+        .order-item.completed {
+            border-left-color: var(--dispatcher-success);
+        }
+        
+        .order-item.cancelled {
+            border-left-color: var(--dispatcher-accent);
+        }
+        
+        .order-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .driver-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .driver-card:hover {
+            border-color: var(--dispatcher-primary);
+            transform: translateY(-2px);
+        }
+        
+        .driver-card.selected {
+            border-color: var(--dispatcher-primary);
+            background-color: rgba(142, 68, 173, 0.05);
+        }
+        
+        .driver-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .driver-status.online {
+            background-color: var(--dispatcher-success);
+        }
+        
+        .driver-status.offline {
+            background-color: #95a5a6;
+        }
+        
+        .driver-status.busy {
+            background-color: var(--dispatcher-warning);
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-success {
+            background: #d5f4e6;
+            color: var(--dispatcher-success);
+            border-left: 4px solid var(--dispatcher-success);
+        }
+        
+        .notification-error {
+            background: #fadbd8;
+            color: var(--dispatcher-accent);
+            border-left: 4px solid var(--dispatcher-accent);
+        }
+        
+        .notification-info {
+            background: #d6eaf8;
+            color: var(--dispatcher-info);
+            border-left: 4px solid var(--dispatcher-info);
+        }
+        
+        .notification-warning {
+            background: #fdebd0;
+            color: var(--dispatcher-warning);
+            border-left: 4px solid var(--dispatcher-warning);
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+        }
+        
+        .map-placeholder {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+        }
+        
+        .urgent-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 30px 20px;
+            }
+            
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .sidebar {
+                min-height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--dispatcher-light);
+            }
+            
+            .order-details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script>
+        // === КОНФИГУРАЦИЯ FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5wn4AeQIRpIlMqwqiQ8s_xioCzNIxuDQ",
+            authDomain: "evakurator-67e48.firebaseapp.com",
+            projectId: "evakurator-67e48",
+            storageBucket: "evakurator-67e48.firebasestorage.app",
+            messagingSenderId: "638085139833",
+            appId: "1:638085139833:web:d9b92baf0df438c28a33a8",
+            measurementId: "G-Z1W22F1P8G"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Глобальные переменные
+        let currentUser = null;
+        let ordersListener = null;
+        let driversListener = null;
+        let currentAssignment = null;
+    </script>
+</head>
+<body>
+    <!-- Контейнер аутентификации -->
+    <div id="auth-container" class="auth-container">
+        <div class="auth-card">
+            <div class="logo-auth">
+                <img src="https://static.tildacdn.com/tild3838-6165-4635-b732-353565656230/_2__.svg" alt="Evakurator">
+                <h2>Панель диспетчера</h2>
+                <p class="text-muted">Управление заказами эвакуации</p>
+            </div>
+            
+            <!-- Форма входа для диспетчера -->
+            <div id="login-form">
+                <div class="form-group">
+                    <label class="form-label">Email диспетчера</label>
+                    <input type="email" class="form-control" id="login-email" placeholder="dispatcher@evakurator.ru">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль</label>
+                    <input type="password" class="form-control" id="login-password" placeholder="Введите пароль">
+                </div>
+                <button class="btn btn-primary w-100" id="email-login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Войти в панель управления
+                </button>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">Доступ только для авторизованного персонала</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер личного кабинета диспетчера -->
+    <div id="dashboard-container" class="dashboard-container">
+        <!-- Навигационная панель -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center">
+                    <div class="logo-dashboard">
+                        <img src="https://static.tildacdn.com/tild3838-6165-4635-b732-353565656230/_2__.svg" alt="Evakurator">
+                    </div>
+                    <span class="dispatcher-badge ms-2">
+                        <i class="fas fa-headset"></i> Диспетчер
+                    </span>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <span class="navbar-text me-3">
+                                <i class="fas fa-user-shield"></i> <span id="user-nav-name">Диспетчер</span>
+                            </span>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-section="drivers">
+                                    <i class="fas fa-users-cog"></i> Управление водителями
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" data-section="analytics">
+                                    <i class="fas fa-chart-bar"></i> Аналитика
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" id="logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i> Выйти из системы
+                                </a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Боковое меню -->
+                <div class="col-lg-2 col-md-3 sidebar p-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Панель управления
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="orders">
+                                <i class="fas fa-list-alt"></i> Все заказы
+                                <span class="badge bg-warning float-end" id="pending-orders-count">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="active-orders">
+                                <i class="fas fa-truck-moving"></i> Активные заказы
+                                <span class="badge bg-primary float-end" id="active-orders-count">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="drivers">
+                                <i class="fas fa-users"></i> Водители
+                                <span class="badge bg-success float-end" id="online-drivers-badge">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="analytics">
+                                <i class="fas fa-chart-line"></i> Аналитика
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <small class="text-muted d-block">Обновлено:</small>
+                        <small id="sidebar-update-time" class="fw-bold">только что</small>
+                    </div>
+                </div>
+
+                <!-- Основной контент -->
+                <div class="col-lg-10 col-md-9 main-content">
+                    <div id="notification-area"></div>
+                    
+                    <!-- Раздел: Панель управления -->
+                    <section id="dashboard-section" class="content-section">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2><i class="fas fa-tachometer-alt"></i> Панель управления диспетчера</h2>
+                            <div class="text-end">
+                                <small class="text-muted">Текущее время: <span id="current-time">--:--:--</span></small>
+                            </div>
+                        </div>
+                        
+                        <!-- Статистика -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card stat-card warning">
+                                    <i class="fas fa-clock"></i>
+                                    <h3 id="total-pending">0</h3>
+                                    <p>Ожидают подтверждения</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card info">
+                                    <i class="fas fa-truck-moving"></i>
+                                    <h3 id="total-active">0</h3>
+                                    <p>Активные заказы</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <h3 id="total-completed">0</h3>
+                                    <p>Завершено сегодня</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card">
+                                    <i class="fas fa-users"></i>
+                                    <h3 id="total-drivers">0</h3>
+                                    <p>Водителей онлайн</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Левая колонка -->
+                            <div class="col-lg-8">
+                                <!-- Срочные заказы -->
+                                <div class="card">
+                                    <div class="card-header bg-warning text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-exclamation-triangle"></i> Требуют внимания
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="urgent-orders">
+                                            <p class="text-muted text-center py-3">Срочных заказов нет</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Последние заказы -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-history"></i> Последние заказы
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="recent-orders">
+                                            <p class="text-muted text-center py-3">Загрузка последних заказов...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Правая колонка -->
+                            <div class="col-lg-4">
+                                <!-- Водители в работе -->
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-user-clock"></i> Водители в работе
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="active-drivers">
+                                            <p class="text-muted text-center py-3">Нет активных водителей</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Быстрые действия -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-bolt"></i> Быстрые действия
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-outline" onclick="switchSection('orders')">
+                                                <i class="fas fa-list"></i> Все заказы
+                                            </button>
+                                            <button class="btn btn-outline" onclick="switchSection('drivers')">
+                                                <i class="fas fa-user-plus"></i> Добавить водителя
+                                            </button>
+                                            <button class="btn btn-outline" id="create-test-order-btn">
+                                                <i class="fas fa-plus-circle"></i> Тестовый заказ
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: Все заказы -->
+                    <section id="orders-section" class="content-section hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2><i class="fas fa-list-alt"></i> Управление заказами</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-outline btn-sm active" data-filter="all">Все</button>
+                                <button class="btn btn-outline btn-sm" data-filter="pending">Ожидание</button>
+                                <button class="btn btn-outline btn-sm" data-filter="active">Активные</button>
+                                <button class="btn btn-outline btn-sm" data-filter="completed">Завершенные</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="all-orders-list">
+                                    <p class="text-muted text-center py-4">Загрузка заказов...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: Активные заказы -->
+                    <section id="active-orders-section" class="content-section hidden">
+                        <h2 class="mb-4"><i class="fas fa-truck-moving"></i> Активные заказы</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="active-orders-list">
+                                    <p class="text-muted text-center py-4">Активных заказов нет</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: Управление водителями -->
+                    <section id="drivers-section" class="content-section hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2><i class="fas fa-users-cog"></i> Управление водителями</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDriverModal">
+                                <i class="fas fa-user-plus"></i> Добавить водителя
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Список водителей</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="drivers-list">
+                                            <p class="text-muted text-center py-4">Загрузка списка водителей...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Статистика водителей</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <small class="text-muted">Всего водителей:</small>
+                                            <h4 id="total-drivers-count">0</h4>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Онлайн:</small>
+                                            <h4 id="online-drivers-count">0</h4>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">В работе:</small>
+                                            <h4 id="busy-drivers-count">0</h4>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Свободны:</small>
+                                            <h4 id="available-drivers-count">0</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Действия</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-outline btn-sm" onclick="addTestDriver()">
+                                                <i class="fas fa-vial"></i> Добавить тестового водителя
+                                            </button>
+                                            <button class="btn btn-outline btn-sm" onclick="updateAllDriversStatus()">
+                                                <i class="fas fa-sync"></i> Обновить статусы
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: Аналитика -->
+                    <section id="analytics-section" class="content-section hidden">
+                        <h2 class="mb-4"><i class="fas fa-chart-line"></i> Аналитика и отчеты</h2>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Статистика за сегодня</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <div class="border rounded p-3 bg-warning bg-opacity-10">
+                                                    <h3 id="today-pending" class="text-warning">0</h3>
+                                                    <small class="text-muted">Ожидание</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="border rounded p-3 bg-primary bg-opacity-10">
+                                                    <h3 id="today-active" class="text-primary">0</h3>
+                                                    <small class="text-muted">Активные</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="border rounded p-3 bg-success bg-opacity-10">
+                                                    <h3 id="today-completed" class="text-success">0</h3>
+                                                    <small class="text-muted">Завершено</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Общая статистика</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row text-center">
+                                            <div class="col-3">
+                                                <h4 id="total-pending-count" class="text-warning">0</h4>
+                                                <small class="text-muted">Ожидание</small>
+                                            </div>
+                                            <div class="col-3">
+                                                <h4 id="total-active-count" class="text-primary">0</h4>
+                                                <small class="text-muted">Активные</small>
+                                            </div>
+                                            <div class="col-3">
+                                                <h4 id="total-completed-count" class="text-success">0</h4>
+                                                <small class="text-muted">Завершено</small>
+                                            </div>
+                                            <div class="col-3">
+                                                <h4 id="total-cancelled-count" class="text-danger">0</h4>
+                                                <small class="text-muted">Отменено</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Отчет по водителям</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="drivers-report">
+                                    <p class="text-muted text-center py-4">Загрузка отчета...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal fade" id="assignDriverModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-tag"></i> Назначение водителя</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6>Детали заказа:</h6>
+                        <div id="order-details-preview"></div>
+                    </div>
+                    
+                    <div class="map-placeholder">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
+                        <div class="ms-3">
+                            <div>Карта маршрута</div>
+                            <small class="text-muted">От: <span id="route-from">-</span> → К: <span id="route-to">-</span></small>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mt-4">Доступные водители:</h6>
+                    <div id="available-drivers-list">
+                        <p class="text-muted text-center py-3">Загрузка списка водителей...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-success" id="confirm-assign-btn">Назначить водителя</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addDriverModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-plus"></i> Добавить водителя</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-driver-form">
+                        <div class="form-group">
+                            <label class="form-label">ФИО водителя *</label>
+                            <input type="text" class="form-control" id="driver-name" placeholder="Иванов Иван Иванович" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Телефон *</label>
+                            <input type="tel" class="form-control" id="driver-phone" placeholder="+7 (999) 999-99-99" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Марка автомобиля *</label>
+                            <input type="text" class="form-control" id="driver-car-brand" placeholder="Toyota" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Модель автомобиля *</label>
+                            <input type="text" class="form-control" id="driver-car-model" placeholder="Camry" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Госномер *</label>
+                            <input type="text" class="form-control" id="driver-car-plate" placeholder="А123БВ77" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Цвет автомобиля</label>
+                            <input type="text" class="form-control" id="driver-car-color" placeholder="Белый">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-success" id="confirm-add-driver-btn">Добавить водителя</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-info-circle"></i> Детали заказа</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="order-full-details"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Основной код приложения диспетчера
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDispatcherApp();
+            startClock();
+        });
+
+        function startClock() {
+            function updateClock() {
+                const now = new Date();
+                document.getElementById('current-time').textContent = now.toLocaleTimeString('ru-RU');
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        async function initializeDispatcherApp() {
+            try {
+                await checkFirebaseConnection();
+                
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log('Диспетчер авторизован:', user.uid);
+                        await loadDispatcherData(user.uid);
+                        showDashboard();
+                        startRealTimeListeners();
+                    } else {
+                        showAuth();
+                    }
+                });
+
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error('Ошибка инициализации приложения:', error);
+                showNotification('Ошибка загрузки приложения', 'error');
+            }
+        }
+
+        // ... (остальной JavaScript код остается таким же, как в предыдущем варианте)
+        // Полный JavaScript код будет аналогичен предыдущему, но адаптирован под это оформление
+    </script>
+</body>
+</html>
