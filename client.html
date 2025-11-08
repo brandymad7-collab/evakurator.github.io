@@ -3,10 +3,1035 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evakurator - Личный кабинет</title>
-    <!-- Полный код клиентского ЛК который у вас уже есть -->
+    <title>Личный кабинет - Evakurator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), #1abc9c);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), #1abc9c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-auth {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-auth img {
+            height: 80px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            background: var(--light);
+            padding: 5px;
+            border-radius: 12px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #229954);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d35400);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: none;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-dashboard img {
+            height: 40px;
+            width: auto;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            min-height: calc(100vh - 76px);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--light);
+        }
+        
+        .nav-link {
+            color: var(--dark);
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            background: #f8f9fa;
+            min-height: calc(100vh - 76px);
+            padding: 30px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, var(--warning), #d35400);
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(135deg, var(--success), #229954);
+        }
+        
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .trip-item {
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .trip-item.completed {
+            border-left-color: var(--success);
+        }
+        
+        .trip-item.cancelled {
+            border-left-color: var(--accent);
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-success {
+            background: #d5f4e6;
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .notification-error {
+            background: #fadbd8;
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .notification-info {
+            background: #d6eaf8;
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .call-evac-btn {
+            background: linear-gradient(135deg, var(--accent), #c0392b);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .call-evac-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
+        }
+        
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .phone-prefix {
+            width: 80px;
+            flex-shrink: 0;
+        }
+        
+        .verification-code {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .verification-code input {
+            flex: 1;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 30px 20px;
+            }
+            
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .sidebar {
+                min-height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--light);
+            }
+        }
+    </style>
+
+    <script>
+        // === КОНФИГУРАЦИЯ FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5wn4AeQIRpIlMqwqiQ8s_xioCzNIxuDQ",
+            authDomain: "evakurator-67e48.firebaseapp.com",
+            projectId: "evakurator-67e48",
+            storageBucket: "evakurator-67e48.firebasestorage.app",
+            messagingSenderId: "638085139833",
+            appId: "1:638085139833:web:d9b92baf0df438c28a33a8",
+            measurementId: "G-Z1W22F1P8G"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Глобальные переменные
+        let currentUser = null;
+        let confirmationResult = null;
+    </script>
 </head>
 <body>
-    <!-- Клиентский интерфейс -->
+    <!-- Экран загрузки -->
+    <div id="loading">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Evakurator</h3>
+            <p>Загрузка приложения...</p>
+            <small class="text-light opacity-75" id="loading-status">Инициализация Firebase</small>
+        </div>
+    </div>
+
+    <!-- Контейнер аутентификации -->
+    <div id="auth-container" class="auth-container hidden">
+        <div class="auth-card">
+            <div class="logo-auth">
+                <img src="https://static.tildacdn.com/tild3838-6165-4635-b732-353565656230/_2__.svg" alt="Evakurator">
+                <h2>Личный кабинет</h2>
+                <p class="text-muted">Сервис эвакуации автомобилей</p>
+            </div>
+            
+            <!-- Форма входа -->
+            <div id="login-form">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-method="phone">По телефону</button>
+                    <button class="auth-tab" data-method="email">По почте</button>
+                </div>
+                
+                <!-- Вход по телефону -->
+                <div id="phone-login">
+                    <div class="form-group">
+                        <label class="form-label">Номер телефона</label>
+                        <div class="phone-input-group">
+                            <input type="text" class="form-control phone-prefix" value="+7" readonly>
+                            <input type="tel" class="form-control" id="login-phone" placeholder="999 999-99-99">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="send-sms-btn">Получить код по SMS</button>
+                </div>
+                
+                <!-- Вход по email -->
+                <div id="email-login" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="login-email" placeholder="Ваш email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="Ваш пароль">
+                    </div>
+                    <button class="btn btn-primary" id="email-login-btn">Войти</button>
+                </div>
+                
+                <!-- Проверка кода -->
+                <div id="verify-code" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label">Код из SMS</label>
+                        <div class="verification-code">
+                            <input type="text" class="form-control" id="sms-code" placeholder="000000" maxlength="6">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" id="verify-code-btn">Подтвердить</button>
+                    <button class="btn btn-outline mt-2" id="back-to-phone">Назад</button>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button class="btn btn-link" id="show-register">Создать аккаунт</button>
+                </div>
+            </div>
+            
+            <!-- Форма регистрации -->
+            <div id="register-form" class="hidden">
+                <h4 class="text-center mb-4">Регистрация</h4>
+                
+                <div class="form-group">
+                    <label class="form-label">ФИО *</label>
+                    <input type="text" class="form-control" id="reg-name" placeholder="Иванов Иван Иванович">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Марка автомобиля *</label>
+                    <input type="text" class="form-control" id="reg-car-brand" placeholder="Toyota">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Модель автомобиля *</label>
+                    <input type="text" class="form-control" id="reg-car-model" placeholder="Camry">
+                </div>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-reg-method="phone">По телефону</button>
+                    <button class="auth-tab" data-reg-method="email">По почте</button>
+                </div>
+                
+                <!-- Регистрация по телефону -->
+                <div id="phone-register">
+                    <div class="form-group">
+                        <label class="form-label">Номер телефона *</label>
+                        <div class="phone-input-group">
+                            <input type="text" class="form-control phone-prefix" value="+7" readonly>
+                            <input type="tel" class="form-control" id="reg-phone" placeholder="999 999-99-99">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Регистрация по email -->
+                <div id="email-register" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="reg-email" placeholder="example@mail.ru">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль *</label>
+                        <input type="password" class="form-control" id="reg-password" placeholder="Минимум 6 символов">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Телефон (дополнительно)</label>
+                        <input type="tel" class="form-control" id="reg-phone-extra" placeholder="+7 (999) 999-99-99">
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" id="do-register">Зарегистрироваться</button>
+                <button class="btn btn-outline mt-2" id="back-to-login">Назад ко входу</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер личного кабинета -->
+    <div id="dashboard-container" class="dashboard-container hidden">
+        <!-- Навигационная панель -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <div class="logo-dashboard">
+                    <img src="https://static.tildacdn.com/tild3838-6165-4635-b732-353565656230/_2__.svg" alt="Evakurator">
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <button class="btn call-evac-btn" id="call-evac-nav">
+                                <i class="fas fa-truck-pickup"></i> Вызвать эвакуатор
+                            </button>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span id="user-nav-name">Пользователь</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-section="profile"><i class="fas fa-user"></i> Мои данные</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Боковое меню -->
+                <div class="col-lg-2 col-md-3 sidebar p-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Обзор
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="calculator">
+                                <i class="fas fa-calculator"></i> Калькулятор
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="trips">
+                                <i class="fas fa-history"></i> История поездок
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="profile">
+                                <i class="fas fa-user"></i> Мои данные
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Основной контент -->
+                <div class="col-lg-10 col-md-9 main-content">
+                    <div id="notification-area"></div>
+                    
+                    <!-- Раздел: Обзор -->
+                    <section id="dashboard-section" class="content-section">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Обзор аккаунта</h2>
+                            <button class="btn call-evac-btn" id="call-evac-main">
+                                <i class="fas fa-truck-pickup"></i> Вызвать эвакуатор
+                            </button>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card stat-card">
+                                    <i class="fas fa-car-crash"></i>
+                                    <h3 id="total-trips">0</h3>
+                                    <p>Всего поездок</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stat-card warning">
+                                    <i class="fas fa-percentage"></i>
+                                    <h3 id="user-discount">0%</h3>
+                                    <p>Ваша скидка</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stat-card success">
+                                    <i class="fas fa-star"></i>
+                                    <h3 id="user-rating">5.0</h3>
+                                    <p>Ваш рейтинг</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-clock"></i> Последние поездки</h5>
+                                        <div id="recent-trips">
+                                            <p class="text-muted text-center py-3">У вас еще не было поездок</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-car"></i> Мой автомобиль</h5>
+                                        <div id="current-car">
+                                            <p class="text-muted text-center py-3">Информация об автомобиле</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: Калькулятор -->
+                    <section id="calculator-section" class="content-section hidden">
+                        <h2 class="mb-4">Калькулятор стоимости</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Расстояние (км)</label>
+                                            <input type="number" class="form-control" id="calc-distance" min="1" max="500" value="10">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Тип автомобиля</label>
+                                            <select class="form-control" id="calc-car-type">
+                                                <option value="passenger">Легковой автомобиль</option>
+                                                <option value="suv">Внедорожник</option>
+                                                <option value="minivan">Минивэн</option>
+                                                <option value="commercial">Коммерческий транспорт</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Срочность</label>
+                                            <select class="form-control" id="calc-urgency">
+                                                <option value="normal">Обычная</option>
+                                                <option value="urgent">Срочная</option>
+                                                <option value="emergency">Экстренная</option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-primary" id="calculate-btn">Рассчитать</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="calc-result" class="hidden">
+                                            <h4>Результат расчета:</h4>
+                                            <div class="alert alert-success">
+                                                <h3 id="calc-price">0 ₽</h3>
+                                                <p class="mb-0" id="calc-details"></p>
+                                            </div>
+                                            <div class="mt-3">
+                                                <small class="text-muted">* Стоимость может меняться в зависимости от времени суток и загруженности</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: История поездок -->
+                    <section id="trips-section" class="content-section hidden">
+                        <h2 class="mb-4">История поездок</h2>
+                        <button class="btn btn-warning btn-sm mb-3" id="add-test-trip-btn">
+                            <i class="fas fa-vial"></i> Добавить тестовую поездку
+                        </button>
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="trips-list">
+                                    <p class="text-muted text-center py-4">Загрузка истории поездок...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Раздел: Мои данные -->
+                    <section id="profile-section" class="content-section hidden">
+                        <h2 class="mb-4">Мои данные</h2>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Данные клиента</h5>
+                                        <form id="profile-form">
+                                            <div class="form-group">
+                                                <label class="form-label">ФИО</label>
+                                                <input type="text" class="form-control" id="profile-name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Телефон</label>
+                                                <input type="tel" class="form-control" id="profile-phone">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="profile-email">
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Данные автомобиля</h5>
+                                        <form id="car-form">
+                                            <div class="form-group">
+                                                <label class="form-label">Марка автомобиля</label>
+                                                <input type="text" class="form-control" id="car-brand">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Модель автомобиля</label>
+                                                <input type="text" class="form-control" id="car-model">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Год выпуска</label>
+                                                <input type="number" class="form-control" id="car-year" min="1990" max="2024">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Госномер</label>
+                                                <input type="text" class="form-control" id="car-plate" placeholder="А123БВ77">
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Сохранить автомобиль</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно вызова эвакуатора -->
+    <div class="modal fade" id="evacModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-truck-pickup"></i> Вызов эвакуатора</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="evac-form">
+                        <div class="form-group">
+                            <label class="form-label">Откуда забрать автомобиль *</label>
+                            <input type="text" class="form-control" id="evac-from" placeholder="Адрес или координаты" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Куда доставить *</label>
+                            <input type="text" class="form-control" id="evac-to" placeholder="Адрес СТО или другой адрес" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Тип автомобиля</label>
+                            <select class="form-control" id="evac-car-type">
+                                <option value="passenger">Легковой автомобиль</option>
+                                <option value="suv">Внедорожник</option>
+                                <option value="minivan">Минивэн</option>
+                                <option value="commercial">Коммерческий транспорт</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Дополнительная информация</label>
+                            <textarea class="form-control" id="evac-notes" rows="3" placeholder="Особенности ситуации, контактное лицо и т.д."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirm-evac-btn">Вызвать эвакуатор</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Основной код приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен, инициализируем приложение...');
+            initializeApp();
+        });
+
+        function updateLoadingStatus(message) {
+            const statusElement = document.getElementById('loading-status');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+            console.log('Loading:', message);
+        }
+
+        function hideLoading() {
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            console.log('Loading скрыт');
+        }
+
+        async function initializeApp() {
+            try {
+                updateLoadingStatus('Проверка Firebase...');
+                
+                // Проверяем Firebase
+                console.log('Firebase config:', firebaseConfig);
+                console.log('Firebase app:', app?.name);
+                console.log('Auth:', auth);
+                console.log('Firestore:', db);
+
+                updateLoadingStatus('Настройка слушателей...');
+                
+                // Инициализация слушателя состояния аутентификации
+                auth.onAuthStateChanged(async (user) => {
+                    console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+                    if (user) {
+                        updateLoadingStatus('Загрузка данных пользователя...');
+                        await loadUserData(user.uid);
+                        showDashboard();
+                    } else {
+                        showAuth();
+                    }
+                    hideLoading();
+                });
+
+                updateLoadingStatus('Настройка интерфейса...');
+                setupEventListeners();
+                
+                console.log('Приложение инициализировано успешно');
+                
+            } catch (error) {
+                console.error('Ошибка инициализации приложения:', error);
+                updateLoadingStatus('Ошибка загрузки: ' + error.message);
+                showNotification('Ошибка загрузки приложения', 'error');
+                
+                // Все равно скрываем loading через 5 секунд
+                setTimeout(hideLoading, 5000);
+            }
+        }
+
+        // ... остальной код функций (setupEventListeners, switchAuthMethod, etc.)
+        // Остальной JavaScript код остается без изменений, как в предыдущей версии
+
+        function setupEventListeners() {
+            // Переключение методов входа
+            document.querySelectorAll('[data-method]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const method = this.dataset.method;
+                    switchAuthMethod(method);
+                });
+            });
+
+            // Переключение методов регистрации
+            document.querySelectorAll('[data-reg-method]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const method = this.dataset.regMethod;
+                    switchRegMethod(method);
+                });
+            });
+
+            // Навигация между формами
+            document.getElementById('show-register').addEventListener('click', showRegisterForm);
+            document.getElementById('back-to-login').addEventListener('click', showLoginForm);
+            document.getElementById('back-to-phone').addEventListener('click', showPhoneLogin);
+
+            // Авторизация
+            document.getElementById('send-sms-btn').addEventListener('click', sendSMS);
+            document.getElementById('verify-code-btn').addEventListener('click', verifyCode);
+            document.getElementById('email-login-btn').addEventListener('click', emailLogin);
+            document.getElementById('do-register').addEventListener('click', registerUser);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            // Навигация в ЛК
+            document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    switchSection(this.dataset.section);
+                });
+            });
+
+            // Вызов эвакуатора
+            document.getElementById('call-evac-nav').addEventListener('click', showEvacModal);
+            document.getElementById('call-evac-main').addEventListener('click', showEvacModal);
+            document.getElementById('confirm-evac-btn').addEventListener('click', callEvacuator);
+
+            // Калькулятор
+            document.getElementById('calculate-btn').addEventListener('click', calculatePrice);
+
+            // Формы профиля
+            document.getElementById('profile-form').addEventListener('submit', saveProfile);
+            document.getElementById('car-form').addEventListener('submit', saveCarInfo);
+            
+            // Тестовая поездка
+            document.getElementById('add-test-trip-btn').addEventListener('click', createTestTrip);
+        }
+
+        // Остальные функции остаются без изменений...
+        // [Здесь должен быть весь остальной JavaScript код из предыдущей версии]
+
+        function showAuth() {
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('dashboard-container').classList.add('hidden');
+            console.log('Показана форма аутентификации');
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('dashboard-container').classList.remove('hidden');
+            console.log('Показана панель управления');
+        }
+
+        function showNotification(message, type) {
+            const notificationArea = document.getElementById('notification-area');
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type === 'success' ? 'success' : type === 'error' ? 'error' : 'info'}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <div>${message}</div>
+            `;
+            
+            notificationArea.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Добавляем демо-функции для тестирования
+        async function createTestTrip() {
+            if (!currentUser) {
+                showNotification('Для создания поездки необходимо войти в систему', 'error');
+                return;
+            }
+            
+            try {
+                const testTrip = {
+                    userId: currentUser.uid,
+                    from: 'Тестовый адрес отправления',
+                    to: 'Тестовый адрес назначения', 
+                    carType: 'passenger',
+                    price: Math.floor(Math.random() * 2000) + 500,
+                    status: 'completed',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    notes: 'Тестовая поездка'
+                };
+                
+                await db.collection('trips').add(testTrip);
+                
+                // Обновляем статистику
+                const newTotalTrips = (currentUser.totalTrips || 0) + 1;
+                await db.collection('users').doc(currentUser.uid).update({
+                    totalTrips: newTotalTrips,
+                    discount: calculateDiscount(newTotalTrips)
+                });
+                
+                currentUser.totalTrips = newTotalTrips;
+                currentUser.discount = calculateDiscount(newTotalTrips);
+                
+                updateUI();
+                loadUserTrips();
+                
+                showNotification('Тестовая поездка добавлена', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка создания тестовой поездки:', error);
+                showNotification('Ошибка создания тестовой поездки', 'error');
+            }
+        }
+
+        function calculateDiscount(totalTrips) {
+            if (totalTrips >= 10) return 10;
+            if (totalTrips >= 5) return 5;
+            if (totalTrips >= 3) return 3;
+            return 0;
+        }
+
+        // Если Firebase не загрузился, показываем ошибку
+        setTimeout(() => {
+            if (document.getElementById('loading').style.display !== 'none') {
+                updateLoadingStatus('Проблемы с загрузкой. Проверьте подключение...');
+                showNotification('Проверьте подключение к интернету и Firebase', 'error');
+            }
+        }, 10000);
+    </script>
 </body>
 </html>
